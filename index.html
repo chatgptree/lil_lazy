@@ -131,6 +131,23 @@ label.check{display:flex;align-items:center;gap:6px;font-size:12.5px;
   color:var(--soft);cursor:pointer;user-select:none}
 input[type=checkbox]{accent-color:var(--hot);width:15px;height:15px;cursor:pointer}
 
+/* ── revert ── */
+.revert{width:18px;height:18px;min-width:18px;border-radius:50%;padding:0;
+  border:1.2px solid var(--deep);background:transparent;color:var(--hot);
+  font:400 12px/1 var(--sans);display:inline-flex;align-items:center;
+  justify-content:center;cursor:pointer;flex:none;transition:all .12s}
+.revert:hover{background:var(--hot);border-color:var(--hot);color:#2b0518}
+.revert:focus-visible{outline:2px solid var(--bulb);outline-offset:2px}
+.revert[hidden]{display:none}
+.revert-sec{margin-left:auto;font:500 11px/1 var(--sans);letter-spacing:.03em;
+  padding:5px 9px;border-radius:2px;border:1px solid var(--rule);
+  color:var(--soft);opacity:.8;background:transparent}
+.revert-sec:hover{background:var(--deep);color:#fff;opacity:1}
+.revert-sec[hidden]{display:none}
+.read.changed{color:var(--hot)}
+.cellwrap{display:flex;align-items:center;justify-content:flex-end;gap:6px}
+.field label .revert{margin-left:5px}
+
 /* ── tables ── */
 table{width:100%;border-collapse:collapse;font-size:13px;margin:0 0 8px}
 th{text-align:left;font-weight:600;font-size:11.5px;letter-spacing:.05em;
@@ -231,6 +248,7 @@ footer{padding:22px 28px;color:var(--dead);font-size:12px;
   <div class="header-actions">
     <button id="presetTest">Test pacing</button>
     <button id="presetProd" class="on">Production pacing</button>
+    <button id="revertAll" class="revert-sec" hidden style="margin-left:0;padding:10px 14px">Revert everything</button>
     <button id="copyCfg" class="gold">Copy Config.h block</button>
   </div>
 </header>
@@ -471,6 +489,15 @@ const shopPrices = SHOP.map(i=>i.price);
 const foodPrices = FOODS.map(f=>f.price);
 const playsPerDay = [2,1,1,1,1,0.3];
 const $ = id => document.getElementById(id);
+
+/* Baselines — what "revert" goes back to. Reset whenever a preset is loaded. */
+let BASE = {};
+let BASE_SHOP = [], BASE_FOOD = [], BASE_PLAYS = [], BASE_ITEM = null;
+const ITEM_FIELDS = ["it_name","it_desc","it_price","it_unlock","it_buyEvery",
+  "it_hunger","it_energy","it_happy","it_glam","it_clean","it_behav","it_dur",
+  "it_boost","it_interval","it_sHunger","it_sEnergy","it_sHappy","it_sGlam","it_sClean"];
+const itemVal = id => { const e = $(id); return e.type === "checkbox" ? e.checked : e.value; };
+const setItemVal = (id,v) => { const e = $(id); if(e.type === "checkbox") e.checked = v; else e.value = v; };
 
 /* ═══════════════════ EXPLANATIONS ═══════════════════ */
 const INFO = {
@@ -816,6 +843,7 @@ function buildControls(){
         <div class="ctl-head">
           <span class="lbl">${s.label}${infoBtn(s.id)}</span>
           <span class="ctl-val">
+            <button class="revert" id="${s.id}_rev" hidden>\u21ba</button>
             <span class="read" id="${s.id}_read"></span>
             <input type="number" id="${s.id}_n" min="${s.min}" max="${s.max}" step="${s.step}"
                    aria-label="${s.label.replace(/&rarr;/g,'to')}, exact value">
@@ -835,6 +863,25 @@ function buildControls(){
     if(el) el.innerHTML = infoBtn(k);
   });
 
+  /* one revert per workshop field, dropped next to its label */
+  ITEM_FIELDS.forEach(id => {
+    const input = $(id);
+    const lab = input.type === "checkbox"
+      ? input.parentElement
+      : (input.previousElementSibling && input.previousElementSibling.tagName === "LABEL"
+          ? input.previousElementSibling : input.closest(".field").querySelector("label"));
+    if(!lab) return;
+    const b = document.createElement("button");
+    b.className = "revert"; b.hidden = true; b.id = id + "_rev";
+    b.innerHTML = "&#8634;";
+    b.addEventListener("click", e => {
+      e.preventDefault();
+      setItemVal(id, BASE_ITEM[id]);
+      scheduleRender();
+    });
+    lab.appendChild(b);
+  });
+
   for(const s of SPEC){
     const r = $(s.id), n = $(s.id + "_n");
     const push = v => {
@@ -844,6 +891,38 @@ function buildControls(){
     };
     r.addEventListener("input", e => push(+e.target.value));
     n.addEventListener("input", e => push(+e.target.value));
+    $(s.id + "_rev").addEventListener("click", () => { S[s.id] = BASE[s.id]; scheduleRender(); });
+  }
+
+  /* one revert per section, shown when anything in that group is off baseline */
+  const SEC = {clock:"h-clock", decay:"h-decay", bands:"h-bands", care:"h-care",
+               death:"h-death", evo:"h-evo", gigs:"h-gigs", round:"h-round",
+               coins:"h-coins", sim:"h-sim"};
+  for(const g in SEC){
+    const hd = $(SEC[g]);
+    if(!hd) continue;
+    const b = document.createElement("button");
+    b.className = "revert-sec"; b.hidden = true; b.textContent = "revert section";
+    b.id = "sec_" + g;
+    b.addEventListener("click", () => {
+      SPEC.filter(s => s.g === g).forEach(s => S[s.id] = BASE[s.id]);
+      if(g === "gigs") GIGS.forEach(x => S[x.key] = BASE[x.key]);
+      if(g === "coins") BASE_PLAYS.forEach((v,i) => playsPerDay[i] = v);
+      scheduleRender();
+    });
+    hd.appendChild(b);
+  }
+  const shopHd = $("h-shop");
+  if(shopHd){
+    const b = document.createElement("button");
+    b.className = "revert-sec"; b.hidden = true; b.textContent = "revert section";
+    b.id = "sec_shop";
+    b.addEventListener("click", () => {
+      BASE_SHOP.forEach((v,i) => shopPrices[i] = v);
+      BASE_FOOD.forEach((v,i) => foodPrices[i] = v);
+      scheduleRender();
+    });
+    shopHd.appendChild(b);
   }
 }
 
@@ -1108,7 +1187,15 @@ function renderControls(){
     if(+r.value !== v) r.value = v;
     if(document.activeElement !== n && +n.value !== v) n.value = v;
     r.style.setProperty("--fill", ((v - s.min)/(s.max - s.min)*100).toFixed(1) + "%");
-    $(s.id+"_read").textContent = readVal(s, v);
+    const rd = $(s.id+"_read");
+    rd.textContent = readVal(s, v);
+    const dirty = (v !== BASE[s.id]);
+    rd.className = "read" + (dirty ? " changed" : "");
+    const rev = $(s.id+"_rev");
+    rev.hidden = !dirty;
+    rev.title = "Back to " + readVal(s, BASE[s.id]);
+    rev.setAttribute("aria-label", "Revert " + s.label.replace(/&rarr;/g,"to") +
+      " to " + readVal(s, BASE[s.id]));
   }
   const ev = eventMins();
   const mean = (id, html) => { const e = $(id+"_means"); if(e) e.innerHTML = html; };
@@ -1184,17 +1271,31 @@ function renderControls(){
     : '<div class="warnbox"><b>Fork order.</b> Forks must ascend, or the later ones never fire.</div>';
 }
 
+/* A number cell with its own revert button, shown only when off baseline. */
+function cell(attr, key, value, base, label, step){
+  const dirty = (+value !== +base);
+  return '<td class="num"><span class="cellwrap">' +
+    '<button class="revert" data-rev="' + attr + '" data-rk="' + key + '"' +
+      (dirty ? "" : " hidden") + ' title="Back to ' + base + '">\u21ba</button>' +
+    '<input type="number" data-' + attr + '="' + key + '" value="' + value +
+      '" min="0" step="' + (step || 1) + '" aria-label="' + label + '">' +
+    "</span></td>";
+}
+
 function renderGigTable(){
   const tb = $("gigTable"); tb.innerHTML = "";
   GIGS.forEach(g => {
     const tr = document.createElement("tr");
     tr.innerHTML = "<td>" + g.name + "</td>" +
-      '<td class="num"><input type="number" data-gig="' + g.key + '" value="' + S[g.key] + '" min="0" step="10" aria-label="' + g.name + ' unlock minutes"></td>' +
+      cell("gig", g.key, S[g.key], BASE[g.key], g.name + " unlock minutes", 10) +
       '<td class="num">' + fmtMins(S[g.key]) + "</td>";
     tb.appendChild(tr);
   });
   tb.querySelectorAll("input").forEach(i => i.addEventListener("input", () => {
     S[i.dataset.gig] = Math.max(0, +i.value || 0); scheduleRender();
+  }));
+  tb.querySelectorAll(".revert").forEach(b => b.addEventListener("click", () => {
+    S[b.dataset.rk] = BASE[b.dataset.rk]; scheduleRender();
   }));
 }
 
@@ -1205,7 +1306,7 @@ function renderShop(){
     const ppc = (p > 0 && it.pts > 0) ? (it.pts/p).toFixed(1) : "\u2014";
     const tr = document.createElement("tr");
     tr.innerHTML = "<td>" + it.name + '<div class="tinynote">' + it.note + "</div></td>" +
-      '<td class="num"><input type="number" data-shop="' + i + '" value="' + p + '" min="0" aria-label="' + it.name + ' price"></td>' +
+      cell("shop", i, p, BASE_SHOP[i], it.name + " price") +
       '<td class="num">' + (it.pts || "\u2014") + "</td>" +
       '<td class="num" style="color:var(--bulb)">' + ppc + "</td>";
     tb.appendChild(tr);
@@ -1213,18 +1314,24 @@ function renderShop(){
   tb.querySelectorAll("input").forEach(i => i.addEventListener("input", () => {
     shopPrices[+i.dataset.shop] = Math.max(0, +i.value || 0); scheduleRender();
   }));
+  tb.querySelectorAll(".revert").forEach(b => b.addEventListener("click", () => {
+    shopPrices[+b.dataset.rk] = BASE_SHOP[+b.dataset.rk]; scheduleRender();
+  }));
 
   const ft = $("foodTable"); ft.innerHTML = "";
   FOODS.forEach((f,i) => {
     const p = foodPrices[i];
     const tr = document.createElement("tr");
     tr.innerHTML = "<td>" + f.name + "</td>" +
-      '<td class="num"><input type="number" data-food="' + i + '" value="' + p + '" min="0" aria-label="' + f.name + ' price"></td>' +
+      cell("food", i, p, BASE_FOOD[i], f.name + " price") +
       '<td class="num" style="color:var(--bulb)">' + (p > 0 ? (S.feedH/p).toFixed(1) : "\u2014") + "</td>";
     ft.appendChild(tr);
   });
   ft.querySelectorAll("input").forEach(i => i.addEventListener("input", () => {
     foodPrices[+i.dataset.food] = Math.max(0, +i.value || 0); scheduleRender();
+  }));
+  ft.querySelectorAll(".revert").forEach(b => b.addEventListener("click", () => {
+    foodPrices[+b.dataset.rk] = BASE_FOOD[+b.dataset.rk]; scheduleRender();
   }));
 }
 
@@ -1237,12 +1344,15 @@ function renderIncome(){
     const tr = document.createElement("tr");
     tr.innerHTML = "<td>" + r.name + "</td>" +
       '<td class="num">' + r.v.toFixed(1) + "</td>" +
-      '<td class="num"><input type="number" data-inc="' + i + '" value="' + playsPerDay[i] + '" min="0" step="0.5" aria-label="' + r.name + ' plays per day"></td>' +
+      cell("inc", i, playsPerDay[i], BASE_PLAYS[i], r.name + " plays per day", 0.5) +
       '<td class="num" style="color:var(--bulb)">' + perDay.toFixed(1) + "</td>";
     tb.appendChild(tr);
   });
   tb.querySelectorAll("input").forEach(i => i.addEventListener("input", () => {
     playsPerDay[+i.dataset.inc] = Math.max(0, +i.value || 0); scheduleRender();
+  }));
+  tb.querySelectorAll(".revert").forEach(b => b.addEventListener("click", () => {
+    playsPerDay[+b.dataset.rk] = BASE_PLAYS[+b.dataset.rk]; scheduleRender();
   }));
   $("incomeTotal").textContent = total.toFixed(1);
   return total;
@@ -1616,6 +1726,37 @@ function scheduleRender(){
   if(raf) cancelAnimationFrame(raf);
   raf = requestAnimationFrame(renderAll);
 }
+function refreshReverts(){
+  /* workshop fields */
+  let itemDirty = false;
+  ITEM_FIELDS.forEach(id => {
+    const d = (String(itemVal(id)) !== String(BASE_ITEM[id]));
+    if(d) itemDirty = true;
+    const b = $(id + "_rev");
+    if(b){ b.hidden = !d; b.title = "Back to " + BASE_ITEM[id]; }
+  });
+
+  /* sections */
+  const groupDirty = g => SPEC.some(s => s.g === g && S[s.id] !== BASE[s.id]);
+  const SEC = ["clock","decay","bands","care","death","evo","gigs","round","coins","sim"];
+  let anyDirty = itemDirty;
+  SEC.forEach(g => {
+    let d = groupDirty(g);
+    if(g === "gigs") d = d || GIGS.some(x => S[x.key] !== BASE[x.key]);
+    if(g === "coins") d = d || playsPerDay.some((v,i) => v !== BASE_PLAYS[i]);
+    const b = $("sec_" + g);
+    if(b) b.hidden = !d;
+    if(d) anyDirty = true;
+  });
+  const shopDirty = shopPrices.some((v,i) => v !== BASE_SHOP[i]) ||
+                    foodPrices.some((v,i) => v !== BASE_FOOD[i]);
+  const sb = $("sec_shop");
+  if(sb) sb.hidden = !shopDirty;
+  if(shopDirty) anyDirty = true;
+
+  $("revertAll").hidden = !anyDirty;
+}
+
 function renderAll(){
   renderControls();
   renderGigTable();
@@ -1628,6 +1769,7 @@ function renderAll(){
   renderEcon(income, ctx.item);
   drawTimeline(solo);
   renderConfig(ctx.item);
+  refreshReverts();
 }
 
 /* workshop inputs */
@@ -1656,6 +1798,10 @@ function loadPreset(which){
   });
   SHOP.forEach((s,i) => shopPrices[i] = s.price);
   FOODS.forEach((f,i) => foodPrices[i] = f.price);
+  BASE = Object.assign({}, PRESETS[which]);
+  BASE_SHOP = shopPrices.slice();
+  BASE_FOOD = foodPrices.slice();
+  BASE_PLAYS = playsPerDay.slice();
   $("presetTest").classList.toggle("on", which === "test");
   $("presetProd").classList.toggle("on", which === "prod");
   renderAll();
@@ -1676,7 +1822,18 @@ $("copyCfg").addEventListener("click", async () => {
   setTimeout(() => b.textContent = "Copy Config.h block", 2200);
 });
 
+$("revertAll").addEventListener("click", () => {
+  S = Object.assign({}, BASE);
+  BASE_SHOP.forEach((v,i) => shopPrices[i] = v);
+  BASE_FOOD.forEach((v,i) => foodPrices[i] = v);
+  BASE_PLAYS.forEach((v,i) => playsPerDay[i] = v);
+  ITEM_FIELDS.forEach(id => setItemVal(id, BASE_ITEM[id]));
+  scheduleRender();
+});
+
 buildControls();
+BASE_ITEM = {};
+ITEM_FIELDS.forEach(id => BASE_ITEM[id] = itemVal(id));   /* the authored defaults */
 loadPreset("prod");
 </script>
 </body>
