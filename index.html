@@ -1,0 +1,1683 @@
+<!DOCTYPE html>
+<!-- LIL'LAZY Balance Console v2 — generated 2026-09-13 -->
+<!-- Single file. No dependencies, no build step, works offline. Double-click to open. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LIL'LAZY — Balance Console</title>
+<style>
+:root{
+  --stage:#14060f; --velvet:#210c1b; --riser:#2e1226;
+  --hot:#ff69b4; --bulb:#ffd800; --deep:#b5146b; --soft:#ffb6c1;
+  --amber:#ff7000; --good:#7ee08a; --dead:#7a5568; --ink:#f6e9f0; --rule:#43203a;
+  --mono:"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;
+  --sans:"Helvetica Neue",Helvetica,Arial,sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{background:var(--stage);color:var(--ink);font:15px/1.55 var(--sans);
+  -webkit-font-smoothing:antialiased;padding:0 0 60px}
+code{font-family:var(--mono);font-size:.9em;color:var(--soft)}
+
+/* ── header ── */
+header{border-bottom:2px solid var(--rule);
+  background:linear-gradient(180deg,#2b1024,var(--stage));
+  padding:24px 28px 20px;display:flex;flex-wrap:wrap;gap:18px;
+  align-items:flex-end;justify-content:space-between}
+.marquee{display:flex;align-items:center;gap:14px}
+.bulbs{display:flex;gap:6px}
+.bulbs i{width:9px;height:9px;border-radius:50%;background:var(--bulb);
+  box-shadow:0 0 8px rgba(255,216,0,.75);display:block}
+.bulbs i:nth-child(2){background:var(--hot);box-shadow:0 0 8px rgba(255,105,180,.75)}
+h1{margin:0;font-size:29px;line-height:1;letter-spacing:.15em;font-weight:800;
+  text-transform:uppercase}
+h1 span{color:var(--hot)}
+.tag{margin:6px 0 0;color:var(--soft);font-size:13px;opacity:.8}
+.header-actions{display:flex;gap:9px;flex-wrap:wrap;align-items:center}
+
+button{font:600 13px/1 var(--sans);letter-spacing:.04em;background:transparent;
+  color:var(--soft);border:1.5px solid var(--deep);border-radius:2px;
+  padding:10px 14px;cursor:pointer;transition:background .12s,color .12s}
+button:hover{background:var(--deep);color:#fff}
+button:focus-visible{outline:2px solid var(--bulb);outline-offset:2px}
+button.on{background:var(--hot);border-color:var(--hot);color:#2b0518}
+button.gold{border-color:var(--bulb);color:var(--bulb)}
+button.gold:hover{background:var(--bulb);color:#2b0518}
+
+/* ── orientation strip ── */
+.orient{padding:18px 28px;border-bottom:1px solid var(--rule);background:#1a0813}
+.orient h2{margin:0 0 10px;font-size:14px;font-weight:700;letter-spacing:.02em}
+.orient-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px}
+.orient-card{border-left:2px solid var(--deep);padding:0 0 0 12px;font-size:13px;
+  color:var(--soft);line-height:1.5}
+.orient-card b{color:var(--ink);display:block;margin-bottom:2px;font-size:13px}
+
+/* ── timeline hero ── */
+.hero{padding:24px 28px 10px;border-bottom:1px solid var(--rule)}
+.hero h2{margin:0 0 4px;font-size:16px;font-weight:700}
+.hero p{margin:0 0 14px;color:var(--soft);opacity:.75;font-size:13px;max-width:74ch}
+#timeline{width:100%;height:220px;display:block}
+.axis-note{color:var(--soft);opacity:.6;font-size:12px;margin:6px 0 0}
+
+/* ── layout ── */
+.grid{display:grid;grid-template-columns:minmax(350px,1fr) minmax(370px,1.1fr)}
+@media(max-width:980px){.grid{grid-template-columns:1fr}}
+.col{padding:24px 28px;min-width:0}
+.col.left{border-right:1px solid var(--rule)}
+@media(max-width:980px){.col.left{border-right:none;border-bottom:1px solid var(--rule)}}
+
+section{margin:0 0 36px}
+section>h3{margin:0 0 3px;font-size:15px;font-weight:700;display:flex;
+  align-items:center;gap:9px}
+section>h3::before{content:"";width:7px;height:7px;border-radius:50%;
+  background:var(--hot);box-shadow:0 0 6px rgba(255,105,180,.6);flex:none}
+section>.blurb{margin:0 0 16px 16px;color:var(--soft);opacity:.72;font-size:13px;
+  max-width:64ch}
+.body{margin-left:16px}
+
+/* ── info button + popover ── */
+.info{display:inline-flex;align-items:center;justify-content:center;
+  width:16px;height:16px;min-width:16px;border-radius:50%;padding:0;
+  border:1.2px solid var(--dead);background:transparent;color:var(--soft);
+  font:700 10px/1 var(--sans);cursor:pointer;vertical-align:middle;
+  margin-left:5px;opacity:.7;transition:all .12s}
+.info:hover,.info[aria-expanded=true]{background:var(--bulb);border-color:var(--bulb);
+  color:#2b0518;opacity:1}
+.info:focus-visible{outline:2px solid var(--bulb);outline-offset:2px;opacity:1}
+#pop{position:absolute;z-index:200;max-width:340px;background:#2a0f22;
+  border:1px solid var(--bulb);border-radius:3px;padding:14px 16px;
+  box-shadow:0 10px 34px rgba(0,0,0,.6);display:none;font-size:13px;line-height:1.5}
+#pop.show{display:block}
+#pop h5{margin:0 0 7px;font-size:13.5px;font-weight:700;color:var(--bulb)}
+#pop p{margin:0 0 9px;color:var(--ink)}
+#pop dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:4px 10px;font-size:12.5px}
+#pop dt{color:var(--hot);font-weight:600;white-space:nowrap}
+#pop dd{margin:0;color:var(--soft)}
+#pop .src{margin:10px 0 0;padding-top:8px;border-top:1px solid var(--rule);
+  font-family:var(--mono);font-size:11px;color:var(--dead)}
+#pop .close{position:absolute;top:6px;right:8px;border:none;background:none;
+  color:var(--dead);font-size:16px;padding:2px 5px;line-height:1}
+#pop .close:hover{background:none;color:var(--hot)}
+
+/* ── controls ── */
+.ctl{margin:0 0 16px}
+.ctl-head{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.ctl-head .lbl{font-size:13.5px;display:flex;align-items:center}
+.ctl-val{display:flex;align-items:center;gap:7px;flex:none}
+.ctl-val .read{font:600 13px/1 var(--mono);color:var(--bulb);white-space:nowrap}
+.ctl-val input[type=number]{width:66px}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:24px;
+  background:transparent;margin:2px 0 0;cursor:pointer;display:block}
+input[type=range]::-webkit-slider-runnable-track{height:3px;
+  background:linear-gradient(90deg,var(--hot) 0 var(--fill,0%),var(--rule) var(--fill,0%) 100%)}
+input[type=range]::-moz-range-track{height:3px;
+  background:linear-gradient(90deg,var(--hot) 0 var(--fill,0%),var(--rule) var(--fill,0%) 100%)}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;
+  border-radius:50%;background:var(--hot);margin-top:-6.5px;border:2px solid var(--stage)}
+input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;
+  background:var(--hot);border:2px solid var(--stage)}
+input[type=range]:focus-visible{outline:2px solid var(--bulb);outline-offset:3px}
+.means{color:var(--soft);opacity:.75;font-size:12.5px;margin:2px 0 0}
+.means b{opacity:1;font-weight:600;color:var(--ink)}
+
+input[type=number],input[type=text],select{font:500 13px/1.2 var(--mono);
+  background:var(--velvet);color:var(--ink);border:1px solid var(--rule);
+  border-radius:2px;padding:7px 8px;width:100%}
+input[type=text]{font-family:var(--sans)}
+select{font-family:var(--sans);cursor:pointer}
+input:focus,select:focus{outline:none;border-color:var(--hot)}
+label.check{display:flex;align-items:center;gap:6px;font-size:12.5px;
+  color:var(--soft);cursor:pointer;user-select:none}
+input[type=checkbox]{accent-color:var(--hot);width:15px;height:15px;cursor:pointer}
+
+/* ── tables ── */
+table{width:100%;border-collapse:collapse;font-size:13px;margin:0 0 8px}
+th{text-align:left;font-weight:600;font-size:11.5px;letter-spacing:.05em;
+  color:var(--soft);opacity:.65;padding:0 8px 7px 0;border-bottom:1px solid var(--rule)}
+th.num,td.num{text-align:right;padding-right:0}
+td{padding:7px 8px 7px 0;border-bottom:1px solid rgba(67,32,58,.45);vertical-align:middle}
+td.num{font-family:var(--mono);font-size:12.5px}
+tr:last-child td{border-bottom:none}
+td input[type=number]{width:66px;padding:5px 6px;text-align:right}
+tfoot td{border-top:1.5px solid var(--rule);border-bottom:none;font-weight:700;padding-top:9px}
+.tinynote{color:var(--dead);font-size:11.5px;margin-top:2px;line-height:1.35}
+
+/* ── panels ── */
+.panel{background:var(--velvet);border:1px solid var(--rule);
+  border-left:3px solid var(--hot);padding:16px 18px;margin:0 0 14px}
+.panel.gold{border-left-color:var(--bulb)}
+.panel.danger{border-left-color:var(--amber)}
+.panel.ok{border-left-color:var(--good)}
+.panel h4{margin:0 0 9px;font-size:13px;font-weight:700;display:flex;align-items:center}
+.big{font:700 32px/1 var(--mono);color:var(--bulb)}
+.big.warn{color:var(--amber)}
+.big.ok{color:var(--good)}
+.big.small{font-size:21px}
+.sub{color:var(--soft);opacity:.78;font-size:12.5px;margin:6px 0 0}
+
+.kv{display:grid;grid-template-columns:1fr auto;gap:6px 14px;font-size:13px;margin:0}
+.kv dt{color:var(--soft);opacity:.8;display:flex;align-items:center}
+.kv dd{margin:0;font-family:var(--mono);font-size:12.5px;text-align:right}
+.kv dd.good{color:var(--good)}
+.kv dd.bad{color:var(--amber)}
+
+.path{display:flex;flex-wrap:wrap;gap:7px;align-items:center;margin:4px 0 0}
+.chip{border:1px solid var(--rule);background:var(--riser);padding:5px 9px;
+  font:600 11.5px/1 var(--sans);letter-spacing:.03em}
+.chip.good{border-color:var(--bulb);color:var(--bulb)}
+.chip.bad{border-color:var(--deep);color:var(--soft)}
+.chip.locked{border-style:dashed;color:var(--dead)}
+.arrow{color:var(--dead);font-size:12px}
+
+#sparkline{width:100%;height:130px;display:block;margin:12px 0 0}
+.legend{display:flex;gap:16px;flex-wrap:wrap;font-size:11.5px;color:var(--soft);
+  opacity:.78;margin:6px 0 0}
+.legend span::before{content:"";display:inline-block;width:14px;height:2px;
+  margin-right:6px;vertical-align:middle}
+.l-care::before{background:var(--bulb)}
+.l-min::before{background:var(--hot)}
+.l-thresh::before{background:var(--dead)}
+
+pre{background:#0d0409;border:1px solid var(--rule);color:var(--soft);
+  font:12px/1.6 var(--mono);padding:14px 16px;margin:0;overflow:auto;
+  max-height:330px;white-space:pre}
+.warnbox{border:1px solid var(--amber);border-left-width:3px;
+  background:rgba(255,112,0,.08);padding:11px 14px;margin:0 0 14px;
+  font-size:12.5px;color:#ffd0aa}
+.warnbox b{color:var(--amber)}
+.okbox{border:1px solid var(--good);border-left-width:3px;
+  background:rgba(126,224,138,.07);padding:11px 14px;margin:0 0 14px;
+  font-size:12.5px;color:#cdf3d3}
+
+/* ── item workshop ── */
+.workshop{border:1px solid var(--bulb);background:#22101d;padding:0}
+.workshop-hd{background:rgba(255,216,0,.09);padding:13px 18px;
+  border-bottom:1px solid var(--rule);display:flex;align-items:center;gap:9px}
+.workshop-hd h3{margin:0;font-size:14px;font-weight:700;color:var(--bulb);display:flex;align-items:center}
+.workshop-hd h3::before{display:none}
+.workshop-bd{padding:18px}
+.fieldrow{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
+.fieldrow.three{grid-template-columns:1fr 1fr 1fr}
+.field label{display:flex;align-items:center;font-size:12px;color:var(--soft);
+  opacity:.8;margin-bottom:5px}
+.statgrid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:14px}
+.statgrid .field label{font-size:11.5px;justify-content:center}
+.statgrid input{text-align:center;padding:6px 2px}
+.checkrow{display:flex;flex-wrap:wrap;gap:12px;margin:8px 0 14px}
+.readout{background:#160718;border-left:3px solid var(--hot);padding:13px 15px;
+  font-size:13px;line-height:1.55;margin:14px 0 0}
+.readout .lead{color:var(--ink);margin:0 0 8px}
+.verdict{font-size:12.5px;padding:8px 11px;margin-top:8px;border-left:2px solid}
+.verdict.warn{border-color:var(--amber);background:rgba(255,112,0,.08);color:#ffd0aa}
+.verdict.ok{border-color:var(--good);background:rgba(126,224,138,.07);color:#cdf3d3}
+.verdict.note{border-color:var(--dead);background:rgba(122,85,104,.12);color:var(--soft)}
+
+footer{padding:22px 28px;color:var(--dead);font-size:12px;
+  border-top:1px solid var(--rule);margin-top:20px}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="marquee">
+    <div class="bulbs"><i></i><i></i><i></i></div>
+    <div>
+      <h1>Lil'Lazy <span>balance console</span></h1>
+      <p class="tag">Change a number on the left. Watch what it does to her life on the right.</p>
+    </div>
+  </div>
+  <div class="header-actions">
+    <button id="presetTest">Test pacing</button>
+    <button id="presetProd" class="on">Production pacing</button>
+    <button id="copyCfg" class="gold">Copy Config.h block</button>
+  </div>
+</header>
+
+<div class="orient">
+  <h2>Three things to know before you touch anything</h2>
+  <div class="orient-cards">
+    <div class="orient-card"><b>She ages in her sleep.</b>
+      The device deep-sleeps after five minutes, but the clock keeps running. Every duration here is real-world time, not play time.</div>
+    <div class="orient-card"><b>Her mood reads her worst stat.</b>
+      Not the average. One bottomed-out need makes her critical even if the other four are full.</div>
+    <div class="orient-card"><b>One hidden number decides everything.</b>
+      The parenting score. It never appears on the device, and it alone picks which branch of the evolution tree she takes.</div>
+  </div>
+</div>
+
+<div class="hero">
+  <h2>One life, start to finish</h2>
+  <p>Gold marks a moment she changes. Pink marks something the player unlocks. The bar underneath is how long she lasts with nobody touching the device.</p>
+  <svg id="timeline" viewBox="0 0 1000 220" preserveAspectRatio="none" role="img" aria-label="Lifespan timeline"></svg>
+  <p class="axis-note" id="axisNote"></p>
+</div>
+
+<div class="grid">
+<div class="col left">
+  <section><h3 id="h-clock">The clock</h3>
+    <p class="blurb">Everything else is measured in these units. Set this first, then set everything else against it.</p>
+    <div class="body" id="g-clock"></div></section>
+
+  <section><h3 id="h-decay">How fast she falls</h3>
+    <p class="blurb">Points lost per decay event. Energy drops twice as fast as everything else, so energy is what actually sets the difficulty.</p>
+    <div class="body" id="g-decay"></div></section>
+
+  <section><h3 id="h-bands">Mood bands</h3>
+    <p class="blurb">Five bands, read from her worst stat. The band she is in decides how fast the parenting score moves and whether the death clock is running.</p>
+    <div class="body" id="g-bands"></div>
+    <div class="body" id="tierWarn"></div></section>
+
+  <section><h3 id="h-care">Parenting score</h3>
+    <p class="blurb">The hidden number. Born on 75, moves at the rate her current band sets, and is checked once at each evolution fork.</p>
+    <div class="body" id="g-care"></div></section>
+
+  <section><h3 id="h-death">Death clock</h3>
+    <p class="blurb">Runs only while she is critical, and zeroes the instant she recovers. There is no partial credit.</p>
+    <div class="body" id="g-death"></div>
+    <div class="body" id="deathWarn"></div></section>
+
+  <section><h3 id="h-evo">Evolution forks</h3>
+    <p class="blurb">Her age when the tree branches. Final form has no age gate at all.</p>
+    <div class="body" id="g-evo"></div>
+    <div class="body" id="evoWarn"></div></section>
+
+  <section><h3 id="h-gigs">Gig unlocks</h3>
+    <p class="blurb">Two gates, both must pass: old enough, and the previous gig played enough times.</p>
+    <div class="body"><table><thead><tr><th>Gig</th><th class="num">Unlocks at (min)</th><th class="num">Reads as</th></tr></thead><tbody id="gigTable"></tbody></table></div>
+    <div class="body" id="g-gigs"></div></section>
+
+  <section><h3 id="h-round">What a visit gives back</h3>
+    <p class="blurb">Compare these against the decay rates. If one kebab covers a day of hunger loss, feeding stops being a decision.</p>
+    <div class="body" id="g-round"></div></section>
+
+  <section><h3 id="h-coins">Coins earned</h3>
+    <p class="blurb">Coin formulas are taken from the game scenes. The plays-per-day column is your assumption about the player.</p>
+    <div class="body"><table><thead><tr><th>Gig</th><th class="num">Per play</th><th class="num">Plays/day</th><th class="num">Coins/day</th></tr></thead><tbody id="incomeTable"></tbody><tfoot><tr><td colspan="3">Total earned per day</td><td class="num" id="incomeTotal"></td></tr></tfoot></table></div>
+    <div class="body" id="g-coins"></div></section>
+
+  <section><h3 id="h-shop">Shop prices</h3>
+    <p class="blurb">Points bought per coin is the honest comparison. Anything far above the others is the only item anyone will ever buy.</p>
+    <div class="body"><table><thead><tr><th>Item</th><th class="num">Price</th><th class="num">Pts</th><th class="num">Pts/coin</th></tr></thead><tbody id="shopTable"></tbody></table>
+    <table><thead><tr><th>Food</th><th class="num">Price</th><th class="num">Hunger/coin</th></tr></thead><tbody id="foodTable"></tbody></table></div></section>
+</div>
+
+<div class="col">
+  <section><h3 id="h-solo">If nobody touches it</h3>
+    <p class="blurb">A device switched on and left alone on a shelf. This is the floor — the shortest life your numbers can produce.</p>
+    <div class="body">
+      <div class="panel danger"><h4>She dies after</h4>
+        <div class="big warn" id="soloDeath">&mdash;</div>
+        <p class="sub" id="soloDeathSub"></p></div>
+      <dl class="kv" id="soloKv"></dl></div></section>
+
+  <section><h3 id="h-sim">A real player</h3>
+    <p class="blurb">Runs the firmware's own loop: same 15-second heartbeat, same band logic, same stickiness. A visit feeds, plays, glams and cleans in one go.</p>
+    <div class="body" id="g-sim"></div>
+    <div class="body">
+      <div class="panel gold"><h4>Where she ends up</h4>
+        <div class="path" id="evoPath"></div>
+        <p class="sub" id="evoPathSub"></p></div>
+      <dl class="kv" id="simKv"></dl>
+      <svg id="sparkline" viewBox="0 0 600 130" preserveAspectRatio="none" role="img" aria-label="Parenting score and worst stat over time"></svg>
+      <div class="legend"><span class="l-care">Parenting score</span><span class="l-min">Worst stat</span><span class="l-thresh">Good-branch line</span></div>
+    </div></section>
+
+  <section><h3 id="h-tol">How forgiving is it <span id="i-tolerance"></span></h3>
+    <p class="blurb">Every visit frequency from one hour to two days, each run as its own full simulation. This is the clearest picture of whether your numbers produce a real difficulty curve or just a cliff.</p>
+    <div class="body">
+      <svg id="tolerance" viewBox="0 0 600 96" preserveAspectRatio="none" role="img" aria-label="Survival by visit frequency"></svg>
+      <div class="legend" style="margin-top:8px">
+        <span style="color:var(--good)">&#9632;&nbsp;Survives, good ending</span>
+        <span style="color:var(--bulb)">&#9632;&nbsp;Survives, bad ending</span>
+        <span style="color:var(--amber)">&#9632;&nbsp;Dies</span>
+      </div>
+      <div id="tolVerdict"></div>
+    </div></section>
+
+  <section>
+    <div class="workshop">
+      <div class="workshop-hd"><h3>Item workshop <span id="i-workshop"></span></h3></div>
+      <div class="workshop-bd">
+        <p class="sub" style="margin:0 0 16px">Build an item out of every characteristic the seven shipped items use between them. It's costed, described in plain English, checked against the existing shop, and run through the simulator below.</p>
+
+        <div class="fieldrow">
+          <div class="field"><label for="it_name">Name <span id="i-it_name"></span></label>
+            <input type="text" id="it_name" maxlength="15" value="GLITTER BOMB"></div>
+          <div class="field"><label for="it_desc">Shelf description</label>
+            <input type="text" id="it_desc" maxlength="20" value="SPARKLE AND RUN"></div>
+        </div>
+        <div class="fieldrow three">
+          <div class="field"><label for="it_price">Price <span id="i-it_price"></span></label>
+            <input type="number" id="it_price" value="12" min="0" max="999"></div>
+          <div class="field"><label for="it_unlock">Unlock age (min) <span id="i-it_unlock"></span></label>
+            <input type="number" id="it_unlock" value="0" min="0"></div>
+          <div class="field"><label for="it_buyEvery">Bought every (h) <span id="i-it_buyEvery"></span></label>
+            <input type="number" id="it_buyEvery" value="0" min="0" max="720"></div>
+        </div>
+
+        <p class="field" style="margin:0 0 6px"><label>Instant boost, applied the moment it's used <span id="i-it_instant"></span></label></p>
+        <div class="statgrid">
+          <div class="field"><label for="it_hunger">Hunger</label><input type="number" id="it_hunger" value="0" min="-100" max="100"></div>
+          <div class="field"><label for="it_energy">Energy</label><input type="number" id="it_energy" value="0" min="-100" max="100"></div>
+          <div class="field"><label for="it_happy">Joy</label><input type="number" id="it_happy" value="25" min="-100" max="100"></div>
+          <div class="field"><label for="it_glam">Glam</label><input type="number" id="it_glam" value="40" min="-100" max="100"></div>
+          <div class="field"><label for="it_clean">Clean</label><input type="number" id="it_clean" value="0" min="-100" max="100"></div>
+        </div>
+
+        <div class="fieldrow three">
+          <div class="field"><label for="it_behav">Ongoing effect <span id="i-it_behav"></span></label>
+            <select id="it_behav">
+              <option value="0">None — instant only</option>
+              <option value="1">Hold stats at 100</option>
+              <option value="2" selected>Top up repeatedly</option>
+              <option value="3">Pin stats at a value</option>
+            </select></div>
+          <div class="field"><label for="it_dur">Lasts (min) <span id="i-it_dur"></span></label>
+            <input type="number" id="it_dur" value="120" min="0" max="10080"></div>
+          <div class="field"><label for="it_boost">Amount <span id="i-it_boost"></span></label>
+            <input type="number" id="it_boost" value="10" min="-127" max="127"></div>
+        </div>
+        <div class="fieldrow">
+          <div class="field"><label for="it_interval">Top-up every (min) <span id="i-it_interval"></span></label>
+            <input type="number" id="it_interval" value="20" min="0" max="255"></div>
+          <div class="field"><label>Stats the ongoing effect touches <span id="i-it_stats"></span></label>
+            <div class="checkrow" style="margin:4px 0 0">
+              <label class="check"><input type="checkbox" id="it_sHunger">Hunger</label>
+              <label class="check"><input type="checkbox" id="it_sEnergy">Energy</label>
+              <label class="check"><input type="checkbox" id="it_sHappy" checked>Joy</label>
+              <label class="check"><input type="checkbox" id="it_sGlam" checked>Glam</label>
+              <label class="check"><input type="checkbox" id="it_sClean" checked>Clean</label>
+            </div></div>
+        </div>
+
+        <div class="readout" id="itemReadout"></div>
+      </div>
+    </div>
+  </section>
+
+  <section><h3 id="h-econ">Does the economy hold</h3>
+    <p class="blurb">Food spend is tied to visit frequency, so changing how often a player checks in moves both her survival and her wallet.</p>
+    <div class="body">
+      <dl class="kv" id="econKv"></dl>
+      <div class="panel" id="econPanel" style="margin-top:14px"><h4>Net position</h4>
+        <div class="big small" id="econNet">&mdash;</div>
+        <p class="sub" id="econNetSub"></p></div>
+      <table><thead><tr><th>Can she afford</th><th class="num">Cost</th><th class="num">Days of saving</th></tr></thead><tbody id="affordTable"></tbody></table></div></section>
+
+  <section><h3 id="h-cfg">Paste this into the code</h3>
+    <p class="blurb">Replaces the pacing block and the constants around it. Everything else in the file stays as it is.</p>
+    <div class="body"><pre id="cfgOut"></pre></div></section>
+</div>
+</div>
+
+<div id="pop" role="dialog" aria-modal="false"></div>
+
+<footer>
+  LIL'LAZY balance console v2 &middot; generated 2026-09-13 &middot; models the <code>Character.cpp</code> update loop, <code>evaluateTier()</code> stickiness, <code>applyActiveItemEffects()</code> and <code>checkEvolution()</code> branching. Combat is deliberately out of scope.
+</footer>
+
+<script>
+"use strict";
+
+/* ═══════════════════ FIRMWARE CONSTANTS ═══════════════════ */
+const TICK_SEC = 15;
+const TIER = {LOVE:0, HAPPY:1, NIGGLE:2, SICK:3, CRITICAL:4};
+const STAGE_NAME = {1:"BABY QUEEN",2:"WERK ROOM",3:"PROMO LAZY",4:"SHE-DEVIL",
+                    5:"TWOinONE",6:"LAZY-SUSAN",7:"HOLOGRAM",8:"LAZY"};
+const BEHAV = {NONE:0, MAX:1, GRADUAL:2, LOW:3};
+
+const PRESETS = {
+  prod:{decayThresh:80,eRecover:1,dHunger:1,dEnergy:2,dHappy:1,dGlam:1,dClean:1,
+    tLove:85,tHappy:60,tSick:30,tCrit2:20,tCrit1:10,tHyst:5,
+    cLove:6,cHappy:4,cSick:-4,cCrit:-8,cGood:50,
+    nDeath:360,nWarn:240,nReaper:60,evo1:1440,evo2:2880,evo3:4320,urPct:5,
+    gig1:2880,gig2:5760,gig3:8640,gig4:11520,gig5:180,gigPlays:20,
+    feedH:50,feedJ:10,playJ:40,playE:10,glamG:50,glamJ:20,
+    checkIn:12,avgLevel:5,avgScore:1200,winRate:50,dayJobMins:5,
+    startCoins:20,bailout:20},
+  test:{decayThresh:5,eRecover:1,dHunger:1,dEnergy:2,dHappy:1,dGlam:1,dClean:1,
+    tLove:85,tHappy:75,tSick:60,tCrit2:50,tCrit1:40,tHyst:5,
+    cLove:1200,cHappy:800,cSick:-800,cCrit:-1600,cGood:50,
+    nDeath:10,nWarn:6,nReaper:3,evo1:2,evo2:4,evo3:6,urPct:5,
+    gig1:3,gig2:5,gig3:7,gig4:9,gig5:180,gigPlays:20,
+    feedH:50,feedJ:10,playJ:40,playE:10,glamG:50,glamJ:20,
+    checkIn:1,avgLevel:5,avgScore:1200,winRate:50,dayJobMins:5,
+    startCoins:20,bailout:20}
+};
+const CARE_MAX = {test:2000, prod:40};
+
+const GIGS = [
+  {key:"gig1",name:"Choreo"},{key:"gig2",name:"Local Comp"},
+  {key:"gig3",name:"Key In Space"},{key:"gig4",name:"Day Job"},
+  {key:"gig5",name:"Showdown"}
+];
+const SHOP = [
+  {name:"Bad Mumma Jus",  price:25, pts:0,   note:"pins all five stats low for 24 hours"},
+  {name:"Tonic",          price:5,  pts:250, note:"+50 to every stat, instantly"},
+  {name:"Potion",         price:5,  pts:0,   note:"holds energy and joy at 100 for an hour"},
+  {name:"Penicillin",     price:15, pts:0,   note:"the only sickness cure; boost follows the sick line"},
+  {name:"Pain Killer",    price:10, pts:0,   note:"does nothing at all in the current code"},
+  {name:"Hair Cement",    price:5,  pts:30,  note:"+20 glam, +10 joy"},
+  {name:"Stench-Be-Gone", price:5,  pts:0,   note:"+15 clean, joy and glam repeatedly for an hour"}
+];
+const FOODS = [{name:"Mi Goreng",price:1},{name:"Kebab",price:2},{name:"Martini",price:4}];
+
+/* ═══════════════════ STATE ═══════════════════ */
+let S = Object.assign({}, PRESETS.prod);
+let mode = "prod";
+const shopPrices = SHOP.map(i=>i.price);
+const foodPrices = FOODS.map(f=>f.price);
+const playsPerDay = [2,1,1,1,1,0.3];
+const $ = id => document.getElementById(id);
+
+/* ═══════════════════ EXPLANATIONS ═══════════════════ */
+const INFO = {
+  /* clock */
+  decayThresh:{t:"Ticks between decay events",
+    p:"The device has a 15-second heartbeat. This is how many heartbeats pass before she loses a round of stat points. It is the master pace dial &mdash; every other duration in the game is judged against it.",
+    up:"Slower decay. She survives longer untouched and a player can ignore her for days.",
+    down:"Faster decay. More urgent, but a player who checks in once a day comes back to a corpse.",
+    src:"Config.h &rarr; DECAY_INTERVAL_THRESHOLD"},
+
+  eRecover:{t:"Energy regained while idle",
+    p:"The device counts as asleep after sixty seconds untouched, and sleep adds this much energy <em>every heartbeat</em> until she hits 100 &mdash; on top of, not instead of, normal decay. At the shipped value that is 240 energy an hour against a loss of 2 every twenty minutes. Energy therefore refills itself whenever the device sits in a pocket, which is almost always.",
+    up:"Energy becomes even more self-healing.",
+    down:"At zero, energy stops recovering by itself and becomes the limiting stat &mdash; a very different game.",
+    src:"Config.h &rarr; ENERGY_RECOVERY_RATE, applied in PowerManager.cpp:483"},
+
+  /* decay */
+  dHunger:{t:"Hunger loss per event",p:"Points of hunger lost each time a decay event fires.",
+    up:"She gets hungry faster and food matters more.",down:"Feeding becomes optional.",
+    src:"Config.h &rarr; HUNGER_DECAY_RATE"},
+  dEnergy:{t:"Energy loss per event",
+    p:"Energy ships at double every other stat, which looks like it makes energy the difficulty curve. It doesn't. Idle energy recovery is roughly a hundred times faster than this loss, so energy refills itself between visits and hunger is the stat that actually limits her.",
+    up:"Still largely cancelled out by idle recovery.",
+    down:"Almost no effect, for the same reason.",
+    src:"Config.h &rarr; ENERGY_DECAY_RATE"},
+  dHappy:{t:"Happiness loss per event",
+    p:"Baseline joy loss. Two other things also drain joy: being filthy costs 2 joy per heartbeat, and a bottomed-out hunger or energy costs 3 per heartbeat. Those two dwarf this number.",
+    up:"Joy becomes the limiting stat.",down:"Joy only ever falls through the two penalty paths.",
+    src:"Config.h &rarr; HAPPINESS_DECAY_RATE"},
+  dGlam:{t:"Glamour loss per event",p:"Drag-specific stat. Restored by glamming and by several shop items.",
+    up:"She needs glamming more often.",down:"Glamour stops being something the player thinks about.",
+    src:"Config.h &rarr; GLAMOUR_DECAY_RATE"},
+  dClean:{t:"Cleanliness loss per event",
+    p:"Cleanliness drives the visible flies and, below 20, costs her 2 joy every heartbeat &mdash; a hidden second decay channel that is far faster than this number suggests.",
+    up:"Flies appear sooner and the joy penalty kicks in earlier.",
+    down:"Cleaning becomes decorative.",src:"Config.h &rarr; CLEANLINESS_DECAY_RATE"},
+
+  /* bands */
+  tLove:{t:"Adored band",p:"Her worst stat must be at or above this for the top band, where the parenting score climbs fastest.",
+    up:"Harder to reach. Good endings need near-perfect care.",
+    down:"Easy to sit in the top band permanently.",src:"Config.h &rarr; TIER_LOVE_MIN"},
+  tHappy:{t:"Happy band",p:"Worst stat at or above this earns a slower positive parenting rate. Below it she enters the flat band, where the score does not move at all.",
+    up:"The flat band gets wider and progress stalls more often.",
+    down:"She counts as happy while visibly struggling.",src:"Config.h &rarr; TIER_HAPPY_MIN"},
+  tSick:{t:"Sick band",p:"Worst stat below this and the parenting score starts falling. This value also sets the flies thresholds and the strength of Penicillin, both of which are derived from it.",
+    up:"She turns sick early, so neglect is punished sooner.",
+    down:"She can be badly run-down before the game reacts.",src:"Config.h &rarr; TIER_SICK_MAX"},
+  tCrit2:{t:"Critical, the pair rule",
+    p:"If <em>two</em> stats fall below this, she is critical even if none has bottomed out. This is what catches broad neglect, as opposed to one forgotten need.",
+    up:"Broad neglect is punished sooner.",down:"Only a single collapsed stat can trigger critical.",
+    src:"Config.h &rarr; TIER_CRITICAL_TWO"},
+  tCrit1:{t:"Critical, the single-stat rule",
+    p:"One stat at or below this makes her critical on its own. This exists because an average could never see it: hunger at 5 with everything else at 100 still averages 81.",
+    up:"A single forgotten need kills much faster.",
+    down:"She can run one stat at zero indefinitely without consequence.",
+    src:"Config.h &rarr; TIER_CRITICAL_ONE"},
+  tHyst:{t:"Stickiness",
+    p:"How far above a boundary she must climb before the game accepts she has left a band. Falling is instant; climbing out needs this margin. Without it, a stat sitting exactly on a line makes her flicker between sick and fine every minute.",
+    up:"Recovery feels harder and slower to acknowledge.",
+    down:"Band changes get twitchy and the mood display flickers.",
+    src:"Config.h &rarr; TIER_HYSTERESIS"},
+
+  /* care */
+  cLove:{t:"Score gain while adored",p:"Parenting points added per hour in the top band. Stored internally in sixtieths, so fractions are fine.",
+    up:"Great care pays off faster.",down:"Even perfect care struggles to move the number.",
+    src:"Config.h &rarr; CARE_RATE_LOVE"},
+  cHappy:{t:"Score gain while happy",p:"Points per hour in the second band. Should sit below the adored rate or there is no reason to aim higher.",
+    up:"Ordinary care is enough for the good ending.",down:"Only near-perfect care progresses.",
+    src:"Config.h &rarr; CARE_RATE_HAPPY"},
+  cSick:{t:"Score loss while sick",p:"Points per hour lost while she is sick. Negative.",
+    up:"Toward zero: neglect is forgiven.",down:"More negative: a single bad night undoes days of care.",
+    src:"Config.h &rarr; CARE_RATE_SICK"},
+  cCrit:{t:"Score loss while critical",p:"Points per hour lost at the bottom. Should be the steepest rate on the ladder.",
+    up:"Toward zero: the worst state costs almost nothing.",
+    down:"More negative: critical is unrecoverable.",src:"Config.h &rarr; CARE_RATE_CRITICAL"},
+  cGood:{t:"The good-branch line",
+    p:"At each fork the game asks one question: is the parenting score at or above this? Yes goes down the good branch, no goes down the bad one. This single number shapes the entire evolution tree.",
+    up:"The bad branches become the default outcome.",
+    down:"Almost everyone gets the good ending and the branching stops meaning anything.",
+    src:"Config.h &rarr; CARE_GOOD_THRESHOLD"},
+
+  /* death */
+  nDeath:{t:"Critical minutes before death",
+    p:"A counter that only runs while she is critical, and resets to zero the moment she climbs out. There is no partial credit, so a player who rescues her at the last minute wipes the slate completely.",
+    up:"Death becomes nearly impossible for anyone who checks in.",
+    down:"A single missed evening kills her.",src:"Config.h &rarr; NEGLECT_DEATH_MINUTES"},
+  nWarn:{t:"Warning notification",p:"When the on-screen warning fires. Must be below the death value or nobody ever sees it.",
+    up:"Less time to react after the warning.",down:"Warns so early it becomes background noise.",
+    src:"Config.h &rarr; NEGLECT_WARNING_THRESHOLD"},
+  nReaper:{t:"Reaper lead time",
+    p:"How long before death the grim reaper starts following her around. Measured backwards from death, so it stays correct if you retune the death clock. It should appear <em>after</em> the warning, or the escalation reads backwards.",
+    up:"The reaper shows up early and loses its impact.",
+    down:"Almost no visual warning before the end.",src:"Config.h &rarr; REAPER_LEAD_MINUTES"},
+
+  /* evolution */
+  evo1:{t:"First fork",p:"Her age when the tree branches for the first time. The parenting score is read once, at this exact minute.",
+    up:"Longer as a baby before anything happens.",down:"She transforms before the player has learned the game.",
+    src:"Config.h &rarr; EVO_CHECKPOINT_1"},
+  evo2:{t:"Second fork",p:"Second branch point. Both the good and bad paths fork again here.",
+    up:"A longer middle act.",down:"The stages blur together.",src:"Config.h &rarr; EVO_CHECKPOINT_2"},
+  evo3:{t:"Third fork",p:"Final age-gated branch. Everything converges from here toward the final form.",
+    up:"The endgame arrives later.",down:"She runs out of tree early and nothing changes after this.",
+    src:"Config.h &rarr; EVO_CHECKPOINT_3"},
+  urPct:{t:"Ultra-rare chance",
+    p:"Rolled first at each of the three forks, before the parenting score is even looked at. Hitting one sends her to a special stage regardless of how well she has been cared for.",
+    up:"Ultra-rares stop feeling rare.",down:"Almost nobody ever sees one.",
+    src:"Config.h &rarr; UR_EVOLUTION_CHANCE_PERCENT"},
+
+  /* gigs */
+  gigPlays:{t:"Plays of the previous gig",
+    p:"How many completed attempts of the previous gig are needed before the next one unlocks. Wins and losses both count, so this is a patience gate rather than a skill gate.",
+    up:"Grindier. Players may hit the age gate long before this one.",
+    down:"Gigs unlock on age alone and this gate does nothing.",
+    src:"Config.h &rarr; GIG_UNLOCK_PLAYS"},
+
+  /* care round */
+  feedH:{t:"Feed &rarr; hunger",p:"Hunger restored by one feed, whichever food is chosen. Food choice only changes the price, never the effect.",
+    up:"One feed lasts longer and feeding becomes a chore rather than a rhythm.",
+    down:"She needs feeding more often.",src:"Config.h &rarr; FEED_HUNGER_BOOST"},
+  feedJ:{t:"Feed &rarr; joy",p:"Joy given by feeding, on top of the hunger it restores.",
+    up:"Feeding alone can carry her mood.",down:"Feeding is purely functional.",
+    src:"Config.h &rarr; FEED_HAPPINESS_BOOST"},
+  playJ:{t:"Play &rarr; joy",p:"Joy from playing a gig. This is the largest single joy source in the game.",
+    up:"One gig fixes any mood problem.",down:"Playing stops being a mood tool.",
+    src:"Config.h &rarr; PLAY_HAPPINESS_BOOST"},
+  playE:{t:"Play &rarr; energy cost",
+    p:"Energy spent playing. This is the only real tension in the loop: the thing that raises her mood is also the thing that drains the stat that falls fastest.",
+    up:"Gigs become genuinely costly and the player has to choose.",
+    down:"The player can grind gigs endlessly with no downside.",
+    src:"Config.h &rarr; PLAY_ENERGY_COST"},
+  glamG:{t:"Glam &rarr; glamour",p:"Glamour restored per glam-up.",up:"Glamming once covers a long stretch.",
+    down:"Glamour needs constant attention.",src:"Config.h &rarr; GLAM_GLAMOUR_BOOST"},
+  glamJ:{t:"Glam &rarr; joy",p:"Joy from glamming, on top of the glamour.",up:"Another easy mood fix.",
+    down:"Glamming only serves one stat.",src:"Config.h &rarr; GLAM_HAPPINESS_BOOST"},
+
+  /* coins */
+  avgLevel:{t:"Average level reached",p:"Your assumption about how deep a typical player gets. Drives the payouts for Beat My Face and Key In Space, both of which scale with level.",
+    up:"Models a skilled player and a richer economy.",down:"Models a casual one.",src:"Your assumption, not a game constant"},
+  avgScore:{t:"Average Choreo score",p:"Choreo pays one coin per hundred points, minimum one. This is your guess at a typical score.",
+    up:"Choreo becomes a strong income source.",down:"Choreo pays the one-coin minimum.",
+    src:"GameThreeScene.cpp &rarr; score / 100"},
+  winRate:{t:"Boss-fight win rate",p:"Applied to the two fights that only pay on a win: Local Comp at 15 coins and Showdown at 30.",
+    up:"Boss fights dominate income.",down:"Boss fights pay nothing and the grind falls to the other gigs.",
+    src:"G6_WIN_COINS and GameFiveScene.cpp"},
+  dayJobMins:{t:"Minutes at the day job",p:"The day job pays one coin per minute survived, so this number <em>is</em> the payout per session.",
+    up:"An unlimited money printer, limited only by patience.",down:"The day job stops being worth opening.",
+    src:"GameFourScene.h &rarr; COIN_INTERVAL_MS"},
+  startCoins:{t:"Starting coins",p:"What she is born with. Sets how long a new player can shop before earning anything.",
+    up:"A generous opening with no early pressure.",down:"The player must earn before they can buy.",
+    src:"Config.h &rarr; STARTING_COINS"},
+  bailout:{t:"Automatic top-up",
+    p:"The live code silently refills her to 20 coins whenever the balance hits zero while she is alive. Coins therefore cannot run out, which means no price you set is ever a real constraint. Set this to zero to model the game with that behaviour removed.",
+    up:"Even more of a safety net.",down:"At zero, prices finally matter and the economy becomes a real system.",
+    src:"Character.cpp:899 &mdash; consider removing"},
+
+  /* sim */
+  checkIn:{t:"Hours between visits",
+    p:"How often a player picks the device up. Everything else in this panel follows from it, including the food bill in the economy section further down.",
+    up:"Models a forgetful owner. Watch the parenting score at each fork.",
+    down:"Models an attentive one.",src:"Your assumption, not a game constant"},
+
+  tolerance:{t:"How forgiving is it",
+    p:"Each bar is a separate full simulation at that visit frequency. Green means she lives and reaches every good branch, gold means she lives but lands on at least one bad branch, amber means she dies. What you want to see is a wide gold band: that is the range where how well a player looks after her actually changes the outcome. A hard green-to-amber edge with no gold means the game has one right answer and one death, and the branching is decorative.",
+    src:"Runs the same loop as the panel above, once per frequency"},
+
+  /* workshop */
+  workshop:{t:"What this is for",
+    p:"A blank item with every characteristic the seven shipped items use between them. Fill it in and the panel underneath tells you what it does in plain English, what it costs against the rest of the shop, and how it changes her life in the simulator above. There is also a code row you can paste straight into the item list.",
+    src:"InventoryScene.cpp &rarr; items[]"},
+  it_name:{t:"Name",p:"Appears on the vending machine. Fifteen characters is the practical ceiling before the marquee has to scroll.",
+    src:"InventoryScene.cpp &rarr; items[].name"},
+  it_price:{t:"Price",p:"Coins deducted on purchase. Compare the points-per-coin figure below against the shop table on the left.",
+    src:"InventoryScene.cpp &rarr; items[].price"},
+  it_unlock:{t:"Unlock age",
+    p:"Her minimum age before the item appears for sale. Worth knowing: every shipped item has this set to zero, so the lever exists but has never been used. Bad Mumma Jus is buyable from birth.",
+    src:"InventoryScene.cpp &rarr; items[].unlockAge"},
+  it_buyEvery:{t:"Bought every N hours",
+    p:"Only affects the simulator, not the item itself. Set it above zero and the simulated player buys and uses this item on that schedule, so you can see what it does to her survival and her evolution path. Zero means it is never used.",
+    src:"Simulation only"},
+  it_instant:{t:"Instant boost",
+    p:"Applied once, the moment the item is used, then forgotten. Every stat is clamped to 0&ndash;100, so a boost bigger than the gap is simply wasted. Negative numbers are allowed &mdash; that is how you build a cursed item.",
+    src:"InventoryScene.cpp &rarr; glam / joy / energy / hunger / clean"},
+  it_behav:{t:"Ongoing effect",
+    p:"What the item keeps doing after it is used.",
+    dl:[["None","Instant boost only, nothing lingers. Tonic and Hair Cement work this way."],
+        ["Hold at 100","Pins the chosen stats to full for the duration. Nothing can move them. This is Potion."],
+        ["Top up","Adds the amount to the chosen stats on a repeating timer. This is Stench-Be-Gone."],
+        ["Pin at a value","Assigns the chosen stats to the amount, over and over. Feeding cannot beat it and neither can decay. This is Bad Mumma Jus &mdash; deliberate limbo."]],
+    src:"Config.h &rarr; EffectBehavior"},
+  it_dur:{t:"Duration",p:"How many minutes the ongoing effect lasts, counted in her age. Stored as a 16-bit value, so the ceiling is 65,535 minutes &mdash; about 45 days.",
+    src:"InventoryScene.cpp &rarr; durationMinutes"},
+  it_boost:{t:"Amount",
+    p:"Means different things depending on the effect. For a top-up it is how much is added each time. For a pin it is the value the stats are held at. For the other two it is ignored. Stored in a signed byte, so &minus;127 to +127.",
+    src:"InventoryScene.cpp &rarr; boostAmount"},
+  it_interval:{t:"Top-up interval",
+    p:"Minutes between top-ups. Only read by the top-up behaviour. Note that the one shipped item using this sets it to zero, which the code treats as every tick &mdash; probably not intentional.",
+    src:"InventoryScene.cpp &rarr; intervalMinutes"},
+  it_stats:{t:"Affected stats",
+    p:"Which stats the <em>ongoing</em> effect touches. Stored as five bit flags. The instant boost above is separate and always applies to whatever you typed there.",
+    src:"Config.h &rarr; STAT_HUNGER, STAT_ENERGY, STAT_HAPPINESS, STAT_GLAMOUR, STAT_CLEANLINESS"}
+};
+
+/* ═══════════════════ INFO POPOVER ═══════════════════ */
+const pop = $("pop");
+let popOpener = null;
+
+function infoHTML(key){
+  const d = INFO[key];
+  if(!d) return "";
+  let h = '<button class="close" aria-label="Close">&times;</button><h5>' + d.t + "</h5>";
+  if(d.p) h += "<p>" + d.p + "</p>";
+  if(d.dl){
+    h += "<dl>";
+    for(const [k,v] of d.dl) h += "<dt>" + k + "</dt><dd>" + v + "</dd>";
+    h += "</dl>";
+  }
+  if(d.up || d.down){
+    h += "<dl>";
+    if(d.up)   h += "<dt>Raise it</dt><dd>" + d.up + "</dd>";
+    if(d.down) h += "<dt>Lower it</dt><dd>" + d.down + "</dd>";
+    h += "</dl>";
+  }
+  if(d.src) h += '<p class="src">' + d.src + "</p>";
+  return h;
+}
+function openPop(btn, key){
+  pop.innerHTML = infoHTML(key);
+  pop.classList.add("show");
+  const r = btn.getBoundingClientRect();
+  const w = Math.min(340, window.innerWidth - 24);
+  pop.style.width = w + "px";
+  let left = r.left + window.scrollX - w/2 + r.width/2;
+  left = Math.max(12, Math.min(left, window.innerWidth - w - 12));
+  pop.style.left = left + "px";
+  pop.style.top = (r.bottom + window.scrollY + 8) + "px";
+  btn.setAttribute("aria-expanded","true");
+  popOpener = btn;
+  pop.querySelector(".close").addEventListener("click", closePop);
+}
+function closePop(){
+  pop.classList.remove("show");
+  if(popOpener){ popOpener.setAttribute("aria-expanded","false"); popOpener.focus(); popOpener = null; }
+}
+document.addEventListener("click", e => {
+  const btn = e.target.closest(".info");
+  if(btn){
+    const key = btn.dataset.info;
+    if(popOpener === btn){ closePop(); } else { closePop(); openPop(btn, key); }
+    e.stopPropagation();
+    return;
+  }
+  if(!e.target.closest("#pop")) closePop();
+});
+document.addEventListener("keydown", e => { if(e.key === "Escape") closePop(); });
+window.addEventListener("resize", closePop);
+
+function infoBtn(key){
+  return INFO[key]
+    ? '<button class="info" data-info="' + key + '" aria-expanded="false" aria-label="What does this do?">i</button>'
+    : "";
+}
+
+/* ═══════════════════ CONTROL SPEC ═══════════════════ */
+const SPEC = [
+  {g:"clock", id:"decayThresh", label:"Ticks between decay events", min:1, max:240, step:1, fmt:"int"},
+  {g:"clock", id:"eRecover", label:"Energy regained per tick while idle", min:0, max:5, step:1, fmt:"plus"},
+  {g:"decay", id:"dHunger", label:"Hunger", min:0, max:8, step:1, fmt:"neg"},
+  {g:"decay", id:"dEnergy", label:"Energy", min:0, max:8, step:1, fmt:"neg"},
+  {g:"decay", id:"dHappy",  label:"Happiness", min:0, max:8, step:1, fmt:"neg"},
+  {g:"decay", id:"dGlam",   label:"Glamour", min:0, max:8, step:1, fmt:"neg"},
+  {g:"decay", id:"dClean",  label:"Cleanliness", min:0, max:8, step:1, fmt:"neg"},
+  {g:"bands", id:"tLove",  label:"Adored, worst stat at or above", min:50, max:100, step:1, fmt:"int"},
+  {g:"bands", id:"tHappy", label:"Happy, worst stat at or above", min:20, max:95, step:1, fmt:"int"},
+  {g:"bands", id:"tSick",  label:"Sick, worst stat below", min:10, max:80, step:1, fmt:"int"},
+  {g:"bands", id:"tCrit2", label:"Critical if two stats below", min:5, max:60, step:1, fmt:"int"},
+  {g:"bands", id:"tCrit1", label:"Critical if any stat at or below", min:0, max:50, step:1, fmt:"int"},
+  {g:"bands", id:"tHyst",  label:"Stickiness when climbing out", min:0, max:20, step:1, fmt:"int"},
+  {g:"care", id:"cLove",  label:"While adored", min:0, max:40, step:1, fmt:"perHour"},
+  {g:"care", id:"cHappy", label:"While happy", min:0, max:40, step:1, fmt:"perHour"},
+  {g:"care", id:"cSick",  label:"While sick", min:-40, max:0, step:1, fmt:"perHour"},
+  {g:"care", id:"cCrit",  label:"While critical", min:-40, max:0, step:1, fmt:"perHour"},
+  {g:"care", id:"cGood",  label:"Score needed for the good branch", min:0, max:100, step:1, fmt:"int"},
+  {g:"death", id:"nDeath",  label:"Critical minutes before she dies", min:5, max:1440, step:5, fmt:"mins"},
+  {g:"death", id:"nWarn",   label:"Warning fires at", min:1, max:1440, step:5, fmt:"mins"},
+  {g:"death", id:"nReaper", label:"Reaper appears this long before the end", min:1, max:480, step:1, fmt:"mins"},
+  {g:"evo", id:"evo1", label:"First fork", min:1, max:14400, step:10, fmt:"mins"},
+  {g:"evo", id:"evo2", label:"Second fork", min:1, max:14400, step:10, fmt:"mins"},
+  {g:"evo", id:"evo3", label:"Third fork", min:1, max:14400, step:10, fmt:"mins"},
+  {g:"evo", id:"urPct", label:"Ultra-rare chance at each fork", min:0, max:50, step:1, fmt:"pct"},
+  {g:"gigs", id:"gigPlays", label:"Plays of the previous gig required", min:0, max:60, step:1, fmt:"int"},
+  {g:"round", id:"feedH", label:"Feed &rarr; hunger", min:0, max:100, step:5, fmt:"plus"},
+  {g:"round", id:"feedJ", label:"Feed &rarr; joy", min:0, max:100, step:5, fmt:"plus"},
+  {g:"round", id:"playJ", label:"Play &rarr; joy", min:0, max:100, step:5, fmt:"plus"},
+  {g:"round", id:"playE", label:"Play &rarr; energy cost", min:0, max:50, step:1, fmt:"neg"},
+  {g:"round", id:"glamG", label:"Glam &rarr; glamour", min:0, max:100, step:5, fmt:"plus"},
+  {g:"round", id:"glamJ", label:"Glam &rarr; joy", min:0, max:100, step:5, fmt:"plus"},
+  {g:"coins", id:"avgLevel",   label:"Average level reached", min:1, max:15, step:1, fmt:"int"},
+  {g:"coins", id:"avgScore",   label:"Average Choreo score", min:0, max:4000, step:50, fmt:"int"},
+  {g:"coins", id:"winRate",    label:"Boss-fight win rate", min:0, max:100, step:5, fmt:"pct"},
+  {g:"coins", id:"dayJobMins", label:"Minutes at the day job per session", min:0, max:30, step:1, fmt:"int"},
+  {g:"coins", id:"startCoins", label:"Coins she is born with", min:0, max:200, step:5, fmt:"int"},
+  {g:"coins", id:"bailout",    label:"Automatic top-up at zero", min:0, max:200, step:5, fmt:"int"},
+  {g:"sim", id:"checkIn", label:"Hours between visits", min:1, max:72, step:1, fmt:"int"}
+];
+const SPEC_BY_ID = {};
+SPEC.forEach(s => SPEC_BY_ID[s.id] = s);
+
+/* ═══════════════════ FORMATTERS ═══════════════════ */
+function fmtMins(m){
+  if(m == null || !isFinite(m)) return "\u2014";
+  if(m < 60) return (m < 10 ? m.toFixed(1) : Math.round(m)) + " min";
+  if(m < 1440) return (m/60).toFixed(1) + " h";
+  const d = m/1440;
+  return (d < 10 ? d.toFixed(1) : Math.round(d)) + " days";
+}
+function fmtShort(m){
+  if(m < 60) return Math.round(m) + "m";
+  if(m < 1440) return (m/60).toFixed(m < 600 ? 1 : 0) + "h";
+  return (m/1440).toFixed(m < 14400 ? 1 : 0) + "d";
+}
+function readVal(spec, v){
+  switch(spec.fmt){
+    case "mins": return fmtMins(v);
+    case "neg":  return v ? "\u2212" + v : "0";
+    case "plus": return "+" + v;
+    case "pct":  return v + "%";
+    case "perHour": return (v > 0 ? "+" : "") + v + "/h";
+    default: return String(v);
+  }
+}
+
+/* ═══════════════════ BUILD CONTROLS ═══════════════════ */
+function buildControls(){
+  const groups = {};
+  for(const s of SPEC){
+    (groups[s.g] = groups[s.g] || []).push(s);
+  }
+  for(const g in groups){
+    const host = $("g-" + g);
+    if(!host) continue;
+    host.innerHTML = groups[g].map(s => `
+      <div class="ctl">
+        <div class="ctl-head">
+          <span class="lbl">${s.label}${infoBtn(s.id)}</span>
+          <span class="ctl-val">
+            <span class="read" id="${s.id}_read"></span>
+            <input type="number" id="${s.id}_n" min="${s.min}" max="${s.max}" step="${s.step}"
+                   aria-label="${s.label.replace(/&rarr;/g,'to')}, exact value">
+          </span>
+        </div>
+        <input type="range" id="${s.id}" min="${s.min}" max="${s.max}" step="${s.step}"
+               aria-label="${s.label.replace(/&rarr;/g,'to')}">
+        <p class="means" id="${s.id}_means"></p>
+      </div>`).join("");
+  }
+  // header/label info buttons that aren't sliders
+  $("i-workshop").innerHTML = infoBtn("workshop");
+  $("i-tolerance").innerHTML = infoBtn("tolerance");
+  ["it_name","it_price","it_unlock","it_buyEvery","it_instant","it_behav",
+   "it_dur","it_boost","it_interval","it_stats"].forEach(k => {
+    const el = $("i-" + k);
+    if(el) el.innerHTML = infoBtn(k);
+  });
+
+  for(const s of SPEC){
+    const r = $(s.id), n = $(s.id + "_n");
+    const push = v => {
+      v = Math.max(s.min, Math.min(s.max, isNaN(v) ? S[s.id] : v));
+      S[s.id] = v;
+      scheduleRender();
+    };
+    r.addEventListener("input", e => push(+e.target.value));
+    n.addEventListener("input", e => push(+e.target.value));
+  }
+}
+
+/* ═══════════════════ SIMULATOR — mirrors Character.cpp ═══════════════════ */
+function itemSpec(){
+  let bits = 0;
+  if($("it_sHunger").checked) bits |= 1;
+  if($("it_sEnergy").checked) bits |= 2;
+  if($("it_sHappy").checked)  bits |= 4;
+  if($("it_sGlam").checked)   bits |= 8;
+  if($("it_sClean").checked)  bits |= 16;
+  return {
+    name:  $("it_name").value || "UNNAMED",
+    desc:  $("it_desc").value || "",
+    price: +$("it_price").value || 0,
+    unlock:+$("it_unlock").value || 0,
+    every: +$("it_buyEvery").value || 0,
+    inst:{hunger:+$("it_hunger").value||0, energy:+$("it_energy").value||0,
+          happiness:+$("it_happy").value||0, glamour:+$("it_glam").value||0,
+          cleanliness:+$("it_clean").value||0},
+    behav: +$("it_behav").value,
+    dur:   +$("it_dur").value || 0,
+    boost: +$("it_boost").value || 0,
+    interval: +$("it_interval").value || 0,
+    bits
+  };
+}
+const BIT_KEY = [[1,"hunger"],[2,"energy"],[4,"happiness"],[8,"glamour"],[16,"cleanliness"]];
+
+function evaluateTier(s, held){
+  const arr = [s.hunger, s.happiness, s.energy, s.glamour, s.cleanliness];
+  let lo = arr[0], belowTwo = 0;
+  for(const v of arr){ if(v < lo) lo = v; if(v < S.tCrit2) belowTwo++; }
+  let t;
+  if(lo <= S.tCrit1 || belowTwo >= 2) t = TIER.CRITICAL;
+  else if(lo < S.tSick)  t = TIER.SICK;
+  else if(lo < S.tHappy) t = TIER.NIGGLE;
+  else if(lo < S.tLove)  t = TIER.HAPPY;
+  else t = TIER.LOVE;
+  if(t < held){                               // improving needs the margin
+    const need = held === TIER.CRITICAL ? S.tCrit2
+               : held === TIER.SICK     ? S.tSick
+               : held === TIER.NIGGLE   ? S.tHappy : S.tLove;
+    if(lo < need + S.tHyst) return held;
+  }
+  return t;
+}
+function careRateFor(t){
+  return t === TIER.LOVE ? S.cLove : t === TIER.HAPPY ? S.cHappy
+       : t === TIER.SICK ? S.cSick : t === TIER.CRITICAL ? S.cCrit : 0;
+}
+
+function simulate(checkInMins, horizonMins, item){
+  const s = {hunger:80, happiness:80, energy:80, glamour:80, cleanliness:100};
+  let careAcc = 75*60, held = TIER.HAPPY;
+  let neglect = 0, decayCounter = 0, ageMin = 0;
+  let deathMin = null, sickFirst = null, criticalFirst = null;
+  let effectUntil = -1, lastTopUp = -1, itemUses = 0;
+  const forks = {}, trace = [];
+  const ticksPerMin = 60/TICK_SEC;
+  const ticksTotal = Math.floor(horizonMins * ticksPerMin);
+  const traceEvery = Math.max(1, Math.floor(horizonMins/300));
+  const useItem = item && item.every > 0;
+
+  const clamp = () => {
+    for(const k in s) s[k] = Math.max(0, Math.min(100, s[k]));
+  };
+
+  for(let tick = 1; tick <= ticksTotal; tick++){
+    decayCounter++;
+    if(decayCounter >= S.decayThresh){
+      const a = Math.floor(decayCounter/S.decayThresh);
+      decayCounter %= S.decayThresh;
+      s.hunger      -= a*S.dHunger;  s.energy    -= a*S.dEnergy;
+      s.happiness   -= a*S.dHappy;   s.glamour   -= a*S.dGlam;
+      s.cleanliness -= a*S.dClean;
+      clamp();
+    }
+    if(s.cleanliness < 20) s.happiness = Math.max(0, s.happiness - 2);
+    if(s.hunger < 5 || s.energy < 5) s.happiness = Math.max(0, s.happiness - 3);
+
+    if(tick % ticksPerMin === 0){
+      ageMin++;
+
+      /* ── item purchase ── */
+      if(useItem && ageMin >= item.unlock && ageMin % (item.every*60) === 0){
+        itemUses++;
+        for(const k in item.inst) s[k] += item.inst[k];
+        clamp();
+        if(item.behav !== BEHAV.NONE && item.dur > 0){
+          effectUntil = ageMin + item.dur;
+          lastTopUp = ageMin;
+        }
+      }
+      /* ── ongoing effect, applied after decay as the firmware does ── */
+      if(useItem && ageMin <= effectUntil){
+        for(const [bit,key] of BIT_KEY){
+          if(!(item.bits & bit)) continue;
+          if(item.behav === BEHAV.MAX) s[key] = 100;
+          else if(item.behav === BEHAV.LOW) s[key] = item.boost;
+          else if(item.behav === BEHAV.GRADUAL){
+            const iv = Math.max(1, item.interval);
+            if(ageMin - lastTopUp >= iv) s[key] += item.boost;
+          }
+        }
+        if(item.behav === BEHAV.GRADUAL){
+          const iv = Math.max(1, item.interval);
+          if(ageMin - lastTopUp >= iv) lastTopUp = ageMin;
+        }
+        clamp();
+      }
+
+      /* ── idle sleep recovery (PowerManager.cpp:483) ──
+         She counts as asleep from 60s after the last touch, and sleep adds
+         energy every heartbeat on top of decay until she reaches 100.       */
+      const awake = checkInMins > 0 && (ageMin % checkInMins) <= 1;
+      if(!awake && s.energy < 100){
+        s.energy = Math.min(100, s.energy + S.eRecover * ticksPerMin);
+      }
+
+      held = evaluateTier(s, held);
+      careAcc = Math.min(6000, Math.max(0, careAcc + careRateFor(held)));
+      const care = careAcc/60;
+
+      if(held >= TIER.SICK && sickFirst === null) sickFirst = ageMin;
+      if(held >= TIER.CRITICAL){
+        if(criticalFirst === null) criticalFirst = ageMin;
+        neglect++;
+      } else neglect = 0;
+
+      for(const cp of [S.evo1, S.evo2, S.evo3]) if(ageMin === cp) forks[cp] = care;
+
+      if(neglect >= S.nDeath && deathMin === null){
+        deathMin = ageMin;
+        trace.push({t:ageMin, care, min:0});
+        break;
+      }
+      if(ageMin % traceEvery === 0){
+        trace.push({t:ageMin, care,
+          min:Math.min(s.hunger,s.happiness,s.energy,s.glamour,s.cleanliness)});
+      }
+      if(checkInMins > 0 && ageMin % checkInMins === 0){
+        s.hunger += S.feedH;
+        s.happiness += S.feedJ + S.playJ + S.glamJ;
+        s.energy -= S.playE;
+        s.glamour += S.glamG;
+        s.cleanliness = 100;
+        clamp();
+      }
+    }
+  }
+  return {deathMin, sickFirst, criticalFirst, forks, trace, itemUses,
+          finalCare:careAcc/60, survived:deathMin === null, ranTo:ageMin};
+}
+
+function evoPath(forks){
+  const ok = c => c !== undefined && c >= S.cGood;
+  const [c1,c2,c3] = [forks[S.evo1], forks[S.evo2], forks[S.evo3]];
+  return [
+    {stage:1, reached:true, good:null},
+    {stage: ok(c1)?3:2, reached:c1!==undefined, good:ok(c1)},
+    {stage: ok(c2)?5:4, reached:c2!==undefined, good:ok(c2)},
+    {stage: ok(c3)?7:6, reached:c3!==undefined, good:ok(c3)},
+    {stage:8, reached:false, good:null}
+  ];
+}
+
+/* ═══════════════════ COIN FORMULAS ═══════════════════ */
+function coinsPerPlay(){
+  const L = S.avgLevel, wr = S.winRate/100;
+  return [
+    {name:"Beat My Face", v:Math.min(3 + (L-1), 12)},
+    {name:"Choreo",       v:Math.max(1, Math.floor(S.avgScore/100))},
+    {name:"Local Comp",   v:15*wr},
+    {name:"Key In Space", v:10*L},
+    {name:"Day Job",      v:S.dayJobMins},
+    {name:"Showdown",     v:30*wr}
+  ];
+}
+
+/* ═══════════════════ DRAWING ═══════════════════ */
+const NS = "http://www.w3.org/2000/svg";
+const el = (tag, a) => { const e = document.createElementNS(NS,tag);
+  for(const k in a) e.setAttribute(k, a[k]); return e; };
+
+function drawTimeline(sim){
+  const svg = $("timeline"); svg.innerHTML = "";
+  const W = 1000, padL = 16, padR = 16, trackY = 142;
+  const ev = [{t:0,l:"Born",k:"g"},{t:S.evo1,l:"Fork 1",k:"g"},
+              {t:S.evo2,l:"Fork 2",k:"g"},{t:S.evo3,l:"Fork 3",k:"g"}];
+  GIGS.forEach(g => ev.push({t:S[g.key], l:g.name, k:"p"}));
+  if(sim.deathMin) ev.push({t:sim.deathMin, l:"Dies alone", k:"a"});
+
+  const maxT = Math.max(...ev.map(e=>e.t), 1) * 1.08;
+  const x = t => padL + (t/maxT)*(W-padL-padR);
+
+  svg.appendChild(el("line",{x1:padL,y1:trackY,x2:W-padR,y2:trackY,
+    stroke:"#43203a","stroke-width":2}));
+
+  if(sim.deathMin){
+    svg.appendChild(el("rect",{x:padL,y:trackY+7,width:Math.max(1,x(sim.deathMin)-padL),
+      height:8,fill:"#ff7000",opacity:".3"}));
+    const t = el("text",{x:padL+6,y:trackY+33,fill:"#ff7000","font-size":"12.5"});
+    t.textContent = "left alone, she lasts " + fmtMins(sim.deathMin);
+    svg.appendChild(t);
+  } else {
+    svg.appendChild(el("rect",{x:padL,y:trackY+7,width:W-padL-padR,height:8,
+      fill:"#7ee08a",opacity:".22"}));
+    const t = el("text",{x:padL+6,y:trackY+33,fill:"#7ee08a","font-size":"12.5"});
+    t.textContent = "left alone, she survives the whole window";
+    svg.appendChild(t);
+  }
+
+  ev.sort((a,b)=>a.t-b.t);
+  let lastX = -999, row = 0;
+  for(const e of ev){
+    const px = x(e.t);
+    row = (px - lastX < 76) ? (row+1)%3 : 0;
+    lastX = px;
+    const c = e.k === "g" ? "#ffd800" : e.k === "a" ? "#ff7000" : "#ff69b4";
+    const top = trackY - 28 - row*31;
+    svg.appendChild(el("line",{x1:px,y1:trackY,x2:px,y2:top,stroke:c,
+      "stroke-width":1,opacity:".5"}));
+    svg.appendChild(el("circle",{cx:px,cy:trackY,r:9,fill:c,opacity:".18"}));
+    svg.appendChild(el("circle",{cx:px,cy:trackY,r:5,fill:c}));
+    const n = el("text",{x:px,y:top-13,fill:c,"font-size":"12.5","font-weight":"600",
+      "text-anchor":"middle"});
+    n.textContent = e.l; svg.appendChild(n);
+    const w = el("text",{x:px,y:top-1,fill:"#ffb6c1","font-size":"11",
+      "text-anchor":"middle",opacity:".65"});
+    w.textContent = e.t === 0 ? "0" : fmtShort(e.t); svg.appendChild(w);
+  }
+  $("axisNote").textContent = "Span shown: " + fmtMins(maxT) +
+    ". Final form is not on this axis \u2014 it has no age gate and unlocks only by winning Showdown.";
+}
+
+function drawSparkline(sim){
+  const svg = $("sparkline"); svg.innerHTML = "";
+  const W = 600, H = 130, p = 5;
+  if(!sim.trace.length) return;
+  const maxT = sim.trace[sim.trace.length-1].t || 1;
+  const x = t => p + (t/maxT)*(W-p*2);
+  const y = v => H - p - (v/100)*(H-p*2);
+  svg.appendChild(el("line",{x1:p,y1:y(S.cGood),x2:W-p,y2:y(S.cGood),
+    stroke:"#7a5568","stroke-width":1,"stroke-dasharray":"4 4"}));
+  for(const cp of [S.evo1,S.evo2,S.evo3]){
+    if(cp <= maxT) svg.appendChild(el("line",{x1:x(cp),y1:p,x2:x(cp),y2:H-p,
+      stroke:"#ffd800","stroke-width":1,opacity:".3"}));
+  }
+  const line = (k,c) => svg.appendChild(el("polyline",{
+    points: sim.trace.map(q => x(q.t).toFixed(1)+","+y(q[k]).toFixed(1)).join(" "),
+    fill:"none", stroke:c, "stroke-width":1.8, "stroke-linejoin":"round"}));
+  line("min","#ff69b4"); line("care","#ffd800");
+}
+
+/* ═══════════════════ RENDER ═══════════════════ */
+const eventMins = () => S.decayThresh * TICK_SEC / 60;
+
+function renderControls(){
+  for(const s of SPEC){
+    const v = S[s.id], r = $(s.id), n = $(s.id+"_n");
+    if(+r.value !== v) r.value = v;
+    if(document.activeElement !== n && +n.value !== v) n.value = v;
+    r.style.setProperty("--fill", ((v - s.min)/(s.max - s.min)*100).toFixed(1) + "%");
+    $(s.id+"_read").textContent = readVal(s, v);
+  }
+  const ev = eventMins();
+  const mean = (id, html) => { const e = $(id+"_means"); if(e) e.innerHTML = html; };
+
+  mean("decayThresh", "She loses a round of points every <b>" + fmtMins(ev) + "</b>.");
+  mean("eRecover", S.eRecover > 0
+    ? "That is <b>" + (S.eRecover*240) + " energy an hour</b> while the device is idle, against a loss of <b>" +
+      S.dEnergy + " every " + fmtMins(ev) + "</b>. Energy refills itself."
+    : "Energy no longer recovers on its own, which makes it the limiting stat.");
+
+  [["dHunger",S.dHunger],["dEnergy",S.dEnergy],["dHappy",S.dHappy],
+   ["dGlam",S.dGlam],["dClean",S.dClean]].forEach(([id,r]) => {
+    mean(id, r === 0 ? "Never decays."
+      : "Full to empty in <b>" + fmtMins((100/r)*ev) +
+        "</b>. Crosses the sick line in <b>" + fmtMins(((100-S.tSick)/r)*ev) + "</b>.");
+  });
+
+  mean("tLove","Currently the top <b>" + (100-S.tLove) + "</b> points of the range.");
+  mean("tHappy","The flat band, where the score does not move, is <b>" +
+    Math.max(0,S.tHappy-S.tSick) + "</b> points wide.");
+  mean("tSick","Also sets the flies thresholds and the Penicillin boost (<b>" +
+    (S.tSick+10) + "</b>).");
+  mean("tHyst","She must climb <b>" + S.tHyst + "</b> past a line before the game agrees she has left.");
+
+  const hrsToGood = S.cHappy > 0 ? ((100-75)/S.cHappy).toFixed(1) : "\u221e";
+  mean("cHappy","From birth at 75 to a full 100 takes <b>" + hrsToGood + " h</b> of unbroken happy care.");
+  mean("cCrit", S.cCrit < 0
+    ? "From 75 down to the branch line takes <b>" + fmtMins((75-S.cGood)/Math.abs(S.cCrit)*60) + "</b> at the bottom."
+    : "Critical costs her nothing.");
+  mean("cGood","Born on 75, so she starts <b>" + (75-S.cGood) + "</b> points " +
+    (75 >= S.cGood ? "above" : "below") + " the line.");
+
+  mean("nDeath","Reset to zero the moment she climbs out of critical.");
+  mean("nWarn", S.nWarn < S.nDeath
+    ? "Leaves <b>" + fmtMins(S.nDeath-S.nWarn) + "</b> to react."
+    : "Fires at or after death \u2014 nobody sees it.");
+  mean("nReaper","Appears at <b>" + fmtMins(Math.max(0,S.nDeath-S.nReaper)) + "</b> on the critical clock.");
+
+  mean("urPct","Odds of seeing no ultra-rare across all three forks: <b>" +
+    Math.round(Math.pow(1-S.urPct/100,3)*100) + "%</b>.");
+  mean("gigPlays","Wins and losses both count toward this.");
+
+  mean("feedH", S.dHunger > 0
+    ? "One feed replaces <b>" + fmtMins((S.feedH/S.dHunger)*ev) + "</b> of hunger decay."
+    : "Hunger does not decay, so feeding changes nothing.");
+  mean("playE", S.dEnergy > 0
+    ? "Costs the same as <b>" + fmtMins((S.playE/S.dEnergy)*ev) + "</b> of natural energy loss."
+    : "Energy does not decay, so this is the only way she tires.");
+  mean("playJ","The single biggest joy source in the game.");
+
+  mean("dayJobMins","One coin per minute, so this is the payout per session.");
+  mean("bailout", S.bailout > 0
+    ? "<b>Coins cannot run out while this is on</b>, so no price is a real constraint."
+    : "Coins can now genuinely run out, so prices start to matter.");
+  mean("checkIn","That is <b>" + (24/S.checkIn).toFixed(1) + "</b> visits a day.");
+
+  /* invariant checks */
+  const tw = [];
+  if(S.tCrit1 >= S.tCrit2) tw.push("The single-stat critical line sits at or above the pair line, so the pair rule can never fire on its own.");
+  if(S.tCrit2 >= S.tSick)  tw.push("Critical overlaps sick, so the sick band is unreachable.");
+  if(S.tSick  >= S.tHappy) tw.push("Sick overlaps happy, so the flat band is unreachable.");
+  if(S.tHappy >= S.tLove)  tw.push("Happy overlaps adored, so the happy band is unreachable.");
+  $("tierWarn").innerHTML = tw.length
+    ? '<div class="warnbox"><b>Bands overlap.</b> ' + tw.join(" ") + "</div>" : "";
+
+  const dw = [];
+  if(S.nWarn >= S.nDeath) dw.push("The warning fires at or after death, so it is never seen.");
+  if(S.nReaper >= S.nDeath - S.nWarn) dw.push("The reaper arrives before the warning does, which reverses the escalation.");
+  $("deathWarn").innerHTML = dw.length
+    ? '<div class="warnbox"><b>The ladder is out of order.</b> ' + dw.join(" ") + "</div>" : "";
+
+  $("evoWarn").innerHTML = (S.evo1 < S.evo2 && S.evo2 < S.evo3) ? ""
+    : '<div class="warnbox"><b>Fork order.</b> Forks must ascend, or the later ones never fire.</div>';
+}
+
+function renderGigTable(){
+  const tb = $("gigTable"); tb.innerHTML = "";
+  GIGS.forEach(g => {
+    const tr = document.createElement("tr");
+    tr.innerHTML = "<td>" + g.name + "</td>" +
+      '<td class="num"><input type="number" data-gig="' + g.key + '" value="' + S[g.key] + '" min="0" step="10" aria-label="' + g.name + ' unlock minutes"></td>' +
+      '<td class="num">' + fmtMins(S[g.key]) + "</td>";
+    tb.appendChild(tr);
+  });
+  tb.querySelectorAll("input").forEach(i => i.addEventListener("input", () => {
+    S[i.dataset.gig] = Math.max(0, +i.value || 0); scheduleRender();
+  }));
+}
+
+function renderShop(){
+  const tb = $("shopTable"); tb.innerHTML = "";
+  SHOP.forEach((it,i) => {
+    const p = shopPrices[i];
+    const ppc = (p > 0 && it.pts > 0) ? (it.pts/p).toFixed(1) : "\u2014";
+    const tr = document.createElement("tr");
+    tr.innerHTML = "<td>" + it.name + '<div class="tinynote">' + it.note + "</div></td>" +
+      '<td class="num"><input type="number" data-shop="' + i + '" value="' + p + '" min="0" aria-label="' + it.name + ' price"></td>' +
+      '<td class="num">' + (it.pts || "\u2014") + "</td>" +
+      '<td class="num" style="color:var(--bulb)">' + ppc + "</td>";
+    tb.appendChild(tr);
+  });
+  tb.querySelectorAll("input").forEach(i => i.addEventListener("input", () => {
+    shopPrices[+i.dataset.shop] = Math.max(0, +i.value || 0); scheduleRender();
+  }));
+
+  const ft = $("foodTable"); ft.innerHTML = "";
+  FOODS.forEach((f,i) => {
+    const p = foodPrices[i];
+    const tr = document.createElement("tr");
+    tr.innerHTML = "<td>" + f.name + "</td>" +
+      '<td class="num"><input type="number" data-food="' + i + '" value="' + p + '" min="0" aria-label="' + f.name + ' price"></td>' +
+      '<td class="num" style="color:var(--bulb)">' + (p > 0 ? (S.feedH/p).toFixed(1) : "\u2014") + "</td>";
+    ft.appendChild(tr);
+  });
+  ft.querySelectorAll("input").forEach(i => i.addEventListener("input", () => {
+    foodPrices[+i.dataset.food] = Math.max(0, +i.value || 0); scheduleRender();
+  }));
+}
+
+function renderIncome(){
+  const cpp = coinsPerPlay(), tb = $("incomeTable");
+  tb.innerHTML = ""; let total = 0;
+  cpp.forEach((r,i) => {
+    const perDay = r.v * playsPerDay[i];
+    total += perDay;
+    const tr = document.createElement("tr");
+    tr.innerHTML = "<td>" + r.name + "</td>" +
+      '<td class="num">' + r.v.toFixed(1) + "</td>" +
+      '<td class="num"><input type="number" data-inc="' + i + '" value="' + playsPerDay[i] + '" min="0" step="0.5" aria-label="' + r.name + ' plays per day"></td>' +
+      '<td class="num" style="color:var(--bulb)">' + perDay.toFixed(1) + "</td>";
+    tb.appendChild(tr);
+  });
+  tb.querySelectorAll("input").forEach(i => i.addEventListener("input", () => {
+    playsPerDay[+i.dataset.inc] = Math.max(0, +i.value || 0); scheduleRender();
+  }));
+  $("incomeTotal").textContent = total.toFixed(1);
+  return total;
+}
+
+function kvInto(host, rows){
+  host.innerHTML = rows.map(([k,v,c]) =>
+    "<dt>" + k + "</dt><dd" + (c ? ' class="'+c+'"' : "") + ">" + v + "</dd>").join("");
+}
+
+function renderSolo(){
+  const horizon = Math.max(S.evo3*1.5, 14*1440);
+  const sim = simulate(0, horizon, null);
+  $("soloDeath").textContent = sim.deathMin ? fmtMins(sim.deathMin) : "she doesn't";
+  $("soloDeath").className = "big " + (sim.deathMin ? "warn" : "ok");
+  $("soloDeathSub").textContent = sim.deathMin
+    ? "From switch-on to game over with zero interaction."
+    : "Nothing bottoms out within " + fmtMins(horizon) + ", so the death clock never starts.";
+  const reach = [S.evo1,S.evo2,S.evo3].filter(c => !sim.deathMin || c < sim.deathMin).length;
+  kvInto($("soloKv"), [
+    ["First falls sick", sim.sickFirst ? fmtMins(sim.sickFirst) : "never"],
+    ["First goes critical", sim.criticalFirst ? fmtMins(sim.criticalFirst) : "never"],
+    ["Reaper visible from", sim.deathMin ? fmtMins(Math.max(0,sim.deathMin-S.nReaper)) : "\u2014",
+      sim.deathMin ? "bad" : ""],
+    ["Forks reached unattended", reach + " of 3", reach === 3 ? "good" : "bad"]
+  ]);
+  return sim;
+}
+
+function renderSim(){
+  const horizon = Math.max(S.evo3*1.25, 3*1440);
+  const item = itemSpec();
+  const sim = simulate(S.checkIn*60, horizon, item);
+  const path = evoPath(sim.forks);
+  $("evoPath").innerHTML = path.map((p,i) =>
+    (i ? '<span class="arrow">\u2192</span>' : "") +
+    '<span class="chip ' + (!p.reached ? "locked" : p.good === null ? "" : p.good ? "good" : "bad") +
+    '">' + STAGE_NAME[p.stage] + "</span>").join("");
+  const reached = path.filter(p => p.reached && p.good !== null).length;
+  $("evoPathSub").textContent = reached === 0
+    ? "She does not survive to the first fork at this visit frequency."
+    : "Final form is greyed out because it has no age gate \u2014 it unlocks only by winning Showdown.";
+
+  const rows = [];
+  [["First",S.evo1],["Second",S.evo2],["Third",S.evo3]].forEach(([l,cp]) => {
+    const c = sim.forks[cp];
+    rows.push(c === undefined ? [l+" fork","not reached","bad"]
+      : [l+" fork, score", c.toFixed(0)+" / "+S.cGood, c >= S.cGood ? "good" : "bad"]);
+  });
+  rows.push(["Score at the end", sim.finalCare.toFixed(0)]);
+  rows.push(["Outcome",
+    sim.survived ? "alive at " + fmtMins(sim.ranTo) : "dies at " + fmtMins(sim.deathMin),
+    sim.survived ? "good" : "bad"]);
+  if(item.every > 0) rows.push(["Workshop item used", sim.itemUses + " times"]);
+  kvInto($("simKv"), rows);
+  drawSparkline(sim);
+  return {sim, item, horizon};
+}
+
+/* ═══════════════════ NEGLECT TOLERANCE SWEEP ═══════════════════ */
+function renderTolerance(){
+  const horizon = Math.max(S.evo3*1.05, 7*1440);
+  const hours = [];
+  for(let h = 1; h <= 48; h += (h < 24 ? 1 : 3)) hours.push(h);
+
+  const results = hours.map(h => {
+    const r = simulate(h*60, horizon, null);
+    const p = evoPath(r.forks);
+    const reached = p.filter(q => q.reached && q.good !== null);
+    const allGood = reached.length === 3 && reached.every(q => q.good);
+    return {h, died: !r.survived, allGood, deathMin: r.deathMin,
+            reached: reached.length, good: reached.filter(q => q.good).length};
+  });
+
+  const svg = $("tolerance"); svg.innerHTML = "";
+  const W = 600, H = 96, top = 8, barH = 52;
+  const bw = W / results.length;
+  results.forEach((r,i) => {
+    const c = r.died ? "#ff7000" : r.allGood ? "#7ee08a" : "#ffd800";
+    svg.appendChild(el("rect",{x:(i*bw).toFixed(2), y:top,
+      width:(bw-1).toFixed(2), height:barH, fill:c, opacity:".85"}));
+  });
+  results.forEach((r,i) => {
+    if(r.h % 6 !== 0 && r.h !== 1) return;
+    const t = el("text",{x:(i*bw + bw/2).toFixed(1), y:top+barH+16,
+      fill:"#ffb6c1","font-size":"10.5","text-anchor":"middle",opacity:".7"});
+    t.textContent = r.h + "h";
+    svg.appendChild(t);
+  });
+  const lbl = el("text",{x:0, y:H-4, fill:"#7a5568","font-size":"10.5"});
+  lbl.textContent = "hours a player can leave it between visits \u2192";
+  svg.appendChild(lbl);
+
+  /* verdict */
+  const safe = results.filter(r => !r.died);
+  const lastSafe = safe.length ? safe[safe.length-1].h : 0;
+  const firstDead = results.find(r => r.died);
+  const mixed = safe.filter(r => !r.allGood).length;
+
+  let v = "";
+  if(!safe.length){
+    v = '<div class="warnbox"><b>Unsurvivable.</b> She dies at every visit frequency tested, including hourly. Something in the decay or band settings is wrong.</div>';
+  } else if(!firstDead){
+    v = '<div class="warnbox"><b>Unkillable.</b> She survives even when left for two days. The death clock is decorative at these settings.</div>';
+  } else {
+    const cliff = firstDead.h - lastSafe;
+    const band = mixed === 0
+      ? "Every surviving frequency produces the <b>same good ending</b>, so the branching never actually branches \u2014 the only way to see a bad stage is to nearly kill her."
+      : "There are <b>" + mixed + "</b> frequencies that survive but land on a bad branch, which is the band where the choice actually matters.";
+    const cls = (mixed === 0 || cliff <= 2) ? "warnbox" : "okbox";
+    v = '<div class="' + cls + '"><b>' +
+      (cliff <= 2 ? "Sharp cliff." : "Gradual curve.") + "</b> She survives up to <b>" +
+      lastSafe + " hours</b> between visits and dies from <b>" + firstDead.h +
+      "</b> onward" + (cliff <= 2 ? ", with nothing in between" : "") + ". " + band + "</div>";
+  }
+  $("tolVerdict").innerHTML = v;
+}
+
+/* ═══════════════════ ITEM WORKSHOP ═══════════════════ */
+function describeItem(it){
+  const names = BIT_KEY.filter(([b]) => it.bits & b)
+    .map(([,k]) => ({hunger:"hunger",energy:"energy",happiness:"joy",
+                     glamour:"glamour",cleanliness:"cleanliness"})[k]);
+  const list = names.length === 0 ? "nothing"
+    : names.length === 1 ? names[0]
+    : names.slice(0,-1).join(", ") + " and " + names.slice(-1);
+
+  const inst = Object.entries(it.inst).filter(([,v]) => v !== 0)
+    .map(([k,v]) => (v>0?"+":"") + v + " " +
+      ({hunger:"hunger",energy:"energy",happiness:"joy",glamour:"glam",cleanliness:"clean"})[k]);
+
+  let s = "<b>" + it.name + "</b> costs <b>" + it.price + "</b> coins. ";
+  s += inst.length ? "It gives " + inst.join(", ") + " on the spot. "
+                   : "It gives nothing on the spot. ";
+  if(it.behav === BEHAV.NONE || it.dur === 0){
+    s += "Nothing lingers afterwards.";
+  } else if(it.behav === BEHAV.MAX){
+    s += "For the next " + fmtMins(it.dur) + " it holds " + list +
+         " at 100, and nothing \u2014 decay, feeding, anything \u2014 can move them.";
+  } else if(it.behav === BEHAV.LOW){
+    s += "For the next " + fmtMins(it.dur) + " it pins " + list + " at " + it.boost +
+         ". Feeding is undone on the next tick and so is decay, so the player is locked out entirely.";
+  } else {
+    const iv = Math.max(1, it.interval);
+    const times = Math.floor(it.dur / iv);
+    s += "For the next " + fmtMins(it.dur) + " it adds " + it.boost + " to " + list +
+         " every " + fmtMins(iv) + " \u2014 about " + times + " top-ups, worth " +
+         (times * it.boost) + " points per stat before clamping.";
+  }
+  return s;
+}
+
+function renderWorkshop(ctx){
+  const it = ctx.item;
+  const host = $("itemReadout");
+  let h = '<p class="lead">' + describeItem(it) + "</p>";
+
+  /* value comparison */
+  const instPts = Object.values(it.inst).reduce((a,b) => a + Math.abs(b), 0);
+  let ongoingPts = 0;
+  const nStats = BIT_KEY.filter(([b]) => it.bits & b).length;
+  if(it.behav === BEHAV.GRADUAL && it.dur > 0){
+    ongoingPts = Math.floor(it.dur / Math.max(1,it.interval)) * Math.abs(it.boost) * nStats;
+  }
+  const totalPts = instPts + ongoingPts;
+  const ppc = it.price > 0 ? totalPts / it.price : Infinity;
+  const shopPPC = SHOP.map((s,i) => s.pts > 0 && shopPrices[i] > 0 ? s.pts/shopPrices[i] : null)
+    .filter(v => v !== null);
+  const bestShop = shopPPC.length ? Math.max(...shopPPC) : 0;
+
+  const rows = [
+    ["Raw stat points", totalPts || "\u2014"],
+    ["Points per coin", it.price > 0 ? (isFinite(ppc) ? ppc.toFixed(1) : "\u2014") : "free"],
+    ["Best item already in the shop", bestShop.toFixed(1) + " pts/coin"]
+  ];
+  if(it.every > 0){
+    const perDay = (24/it.every) * it.price;
+    rows.push(["Costs the player", perDay.toFixed(1) + " coins a day"]);
+  }
+  h += '<dl class="kv" style="margin-top:6px">' + rows.map(([k,v]) =>
+    "<dt>" + k + "</dt><dd>" + v + "</dd>").join("") + "</dl>";
+
+  /* verdicts */
+  const v = [];
+  if(it.price === 0) v.push(["warn","It is free. Anything free with a real effect makes the whole coin economy decorative."]);
+  if(isFinite(ppc) && bestShop > 0 && ppc > bestShop * 1.5)
+    v.push(["warn","At " + ppc.toFixed(1) + " points per coin it is over half again better value than anything currently on the shelf. Players will buy only this."]);
+  if(it.behav === BEHAV.MAX && it.dur >= 720)
+    v.push(["warn","Holding stats at 100 for " + fmtMins(it.dur) + " suspends the game. Her mood reads her worst stat, so if this covers every stat she cannot decline at all while it runs."]);
+  if(it.behav === BEHAV.MAX && (it.bits & 31) === 31)
+    v.push(["warn","This pins all five stats. The death clock can never start while it is active."]);
+  if(it.behav === BEHAV.LOW && it.boost > S.tSick)
+    v.push(["note","Pinned at " + it.boost + ", which is above the sick line of " + S.tSick + ". She will read as healthy while pinned, which is probably not the intent of a vice item."]);
+  if(it.behav === BEHAV.LOW && it.boost <= S.tCrit1)
+    v.push(["warn","Pinned at " + it.boost + ", at or below the single-stat critical line of " + S.tCrit1 + ". The death clock will run for the whole " + fmtMins(it.dur) + " and she will die mid-effect."]);
+  if(it.behav === BEHAV.GRADUAL && it.interval === 0)
+    v.push(["note","An interval of zero is treated as every tick, which makes the top-up effectively continuous. The one shipped item doing this is probably a bug."]);
+  if(it.unlock === 0 && (it.behav === BEHAV.LOW || it.price >= 20))
+    v.push(["note","Unlock age is zero, so this is on sale from the moment she is born. Every shipped item has the same problem."]);
+  if(it.dur > 0 && it.behav !== BEHAV.NONE && it.every > 0 && it.every*60 < it.dur)
+    v.push(["warn","Bought every " + it.every + " h but lasts " + fmtMins(it.dur) + ", so the effect never lapses. It is permanent in practice."]);
+  if(!v.length) v.push(["ok","Nothing obviously broken. Check the evolution path above with and without it."]);
+  h += v.map(([c,t]) => '<div class="verdict ' + c + '">' + t + "</div>").join("");
+
+  /* with vs without */
+  if(it.every > 0){
+    const without = simulate(S.checkIn*60, ctx.horizon, null);
+    const wp = evoPath(without.forks), ip = evoPath(ctx.sim.forks);
+    const same = wp.every((p,i) => p.stage === ip[i].stage);
+    const dTxt = (a,b) => {
+      if(a.survived && b.survived) return "no change to survival";
+      if(!a.survived && b.survived) return "she now survives instead of dying at " + fmtMins(a.deathMin);
+      if(a.survived && !b.survived) return "she now dies at " + fmtMins(b.deathMin) + " when she used to survive";
+      return "death moves from " + fmtMins(a.deathMin) + " to " + fmtMins(b.deathMin);
+    };
+    h += '<div class="verdict ' + (same ? "note" : "ok") + '" style="margin-top:12px">' +
+      "<b>With it versus without:</b> " + (same
+        ? "the evolution path is unchanged"
+        : "the path changes from " + wp.map(p=>STAGE_NAME[p.stage]).join(" \u2192 ") +
+          " to " + ip.map(p=>STAGE_NAME[p.stage]).join(" \u2192 ")) +
+      ", and " + dTxt(without, ctx.sim) + ".</div>";
+  } else {
+    h += '<div class="verdict note" style="margin-top:12px">Set <b>bought every</b> above zero to run this item through the simulator and see what it does to her path.</div>';
+  }
+
+  /* code row */
+  const bitNames = BIT_KEY.filter(([b]) => it.bits & b)
+    .map(([b]) => ({1:"STAT_HUNGER",2:"STAT_ENERGY",4:"STAT_HAPPINESS",
+                    8:"STAT_GLAMOUR",16:"STAT_CLEANLINESS"})[b]).join(" | ") || "0";
+  const bname = ["EFFECT_NONE","EFFECT_MAINTAIN_MAX","EFFECT_GRADUAL_BOOST","EFFECT_MAINTAIN_LOW"][it.behav];
+  const row = '{"' + it.name.toUpperCase() + '", "' + it.desc.toUpperCase() + '", ' +
+    it.price + ", " + it.unlock + ', "' + it.name.toLowerCase().replace(/[^a-z0-9]+/g,"_") + '", ' +
+    it.inst.glamour + ", " + it.inst.happiness + ", " + it.inst.energy + ", " +
+    it.inst.hunger + ", " + it.inst.cleanliness + ", {" + bname + ", " +
+    bitNames + ", " + it.dur + ", " + it.boost + ", " + it.interval + "}},";
+  h += '<p class="sub" style="margin:14px 0 5px">Paste into <code>InventoryScene.cpp</code> &rarr; <code>items[]</code>:</p>' +
+       "<pre style=\"max-height:130px\">" + row.replace(/</g,"&lt;") + "</pre>";
+  host.innerHTML = h;
+}
+
+/* ═══════════════════ ECONOMY ═══════════════════ */
+function renderEcon(income, item){
+  const visits = 24/S.checkIn;
+  const cheapest = Math.min(...foodPrices);
+  const food = visits * cheapest;
+  const itemCost = item.every > 0 ? (24/item.every)*item.price : 0;
+  const net = income - food - itemCost;
+
+  const rows = [
+    ["Visits a day", visits.toFixed(1)],
+    ["Coins in", "+" + income.toFixed(1) + " / day"],
+    ["Food out (cheapest)", "\u2212" + food.toFixed(1) + " / day"]
+  ];
+  if(itemCost > 0) rows.push(["Workshop item out", "\u2212" + itemCost.toFixed(1) + " / day"]);
+  rows.push(["Starting balance", String(S.startCoins)], ["Ceiling", "999"]);
+  kvInto($("econKv"), rows);
+
+  $("econNet").textContent = (net >= 0 ? "+" : "") + net.toFixed(1) + " coins / day";
+  $("econNet").className = "big small" + (net < 0 ? " warn" : " ok");
+  $("econPanel").className = "panel" + (net < 0 ? " danger" : " ok");
+  $("econNetSub").textContent = S.bailout > 0
+    ? "The automatic top-up is still on, so even a negative figure here cannot bankrupt her. Set it to zero to make this number mean something."
+    : net < 0 ? "She spends more than she earns. Either the gigs pay too little or the shop costs too much."
+    : net === 0 ? "Exactly break-even."
+    : "She banks the surplus and hits the 999 ceiling in " +
+      Math.ceil((999-S.startCoins)/net) + " days.";
+
+  const tb = $("affordTable"); tb.innerHTML = "";
+  const list = SHOP.map((s,i) => [s.name, shopPrices[i]])
+    .concat([[item.name + " (workshop)", item.price],
+             ["Shantay You Stay (revive)", 40]]);
+  for(const [n,c] of list){
+    const d = net > 0 ? (c/net).toFixed(1) : "never";
+    const tr = document.createElement("tr");
+    tr.innerHTML = "<td>" + n + "</td><td class=\"num\">" + c + "</td>" +
+      '<td class="num" style="color:' + (net>0?"var(--bulb)":"var(--amber)") + '">' + d + "</td>";
+    tb.appendChild(tr);
+  }
+}
+
+/* ═══════════════════ CONFIG EXPORT ═══════════════════ */
+function renderConfig(item){
+  const bitNames = BIT_KEY.filter(([b]) => item.bits & b)
+    .map(([b]) => ({1:"STAT_HUNGER",2:"STAT_ENERGY",4:"STAT_HAPPINESS",
+                    8:"STAT_GLAMOUR",16:"STAT_CLEANLINESS"})[b]).join(" | ") || "0";
+  $("cfgOut").textContent =
+`// ===== TEST / PRODUCTION PACING =====
+// Generated by the balance console, 2026-09-13
+#define TEST_MODE 0
+
+#if TEST_MODE
+// (test block left as it is)
+#else
+// --- death clock ---
+#define NEGLECT_DEATH_MINUTES       ${S.nDeath}
+#define NEGLECT_WARNING_THRESHOLD   ${S.nWarn}
+#define REAPER_LEAD_MINUTES         ${S.nReaper}
+// --- evolution checkpoints ---
+#define EVO_CHECKPOINT_1            ${S.evo1}
+#define EVO_CHECKPOINT_2            ${S.evo2}
+#define EVO_CHECKPOINT_3            ${S.evo3}
+// --- stat decay: one event every ${S.decayThresh} x 15s = ${fmtMins(eventMins())} ---
+#define DECAY_INTERVAL_THRESHOLD    ${S.decayThresh}
+// --- wellbeing tiers ---
+#define TIER_LOVE_MIN               ${S.tLove}
+#define TIER_HAPPY_MIN              ${S.tHappy}
+#define TIER_SICK_MAX               ${S.tSick}
+#define TIER_CRITICAL_ONE           ${S.tCrit1}
+#define TIER_CRITICAL_TWO           ${S.tCrit2}
+// --- parenting: points per HOUR ---
+#define CARE_RATE_LOVE              ${S.cLove}
+#define CARE_RATE_HAPPY             ${S.cHappy}
+#define CARE_RATE_NIGGLE            0
+#define CARE_RATE_SICK              ${S.cSick}
+#define CARE_RATE_CRITICAL          ${S.cCrit}
+#endif
+
+#define TIER_HYSTERESIS             ${S.tHyst}
+#define CARE_GOOD_THRESHOLD         ${S.cGood}
+#define UR_EVOLUTION_CHANCE_PERCENT ${S.urPct}
+
+// ===== STAT DECAY =====
+#define HUNGER_DECAY_RATE           ${S.dHunger}
+#define ENERGY_DECAY_RATE           ${S.dEnergy}
+#define HAPPINESS_DECAY_RATE        ${S.dHappy}
+#define GLAMOUR_DECAY_RATE          ${S.dGlam}
+#define CLEANLINESS_DECAY_RATE      ${S.dClean}
+#define ENERGY_RECOVERY_RATE        ${S.eRecover}
+
+// ===== ACTION EFFECTS =====
+#define FEED_HUNGER_BOOST           ${S.feedH}
+#define FEED_HAPPINESS_BOOST        ${S.feedJ}
+#define PLAY_HAPPINESS_BOOST        ${S.playJ}
+#define PLAY_ENERGY_COST            ${S.playE}
+#define GLAM_GLAMOUR_BOOST          ${S.glamG}
+#define GLAM_HAPPINESS_BOOST        ${S.glamJ}
+
+// ===== GIG UNLOCKS =====
+#define GIG_UNLOCK_PLAYS            ${S.gigPlays}
+#define GIG_1_UNLOCK_MINUTES        ${S.gig1}
+#define GIG_2_UNLOCK_MINUTES        ${S.gig2}
+#define GIG_3_UNLOCK_MINUTES        ${S.gig3}
+#define GIG_4_UNLOCK_MINUTES        ${S.gig4}
+#define GIG_5_UNLOCK_MINUTES        ${S.gig5}
+#define GIG_UNLOCK_DISABLED         false
+
+// ===== COINS =====
+#define STARTING_COINS              ${S.startCoins}
+#define MAX_COINS                   999
+
+// ===== InventoryScene.cpp -> items[] =====
+${SHOP.map((s,i) => "//   " + s.name.padEnd(17) + shopPrices[i]).join("\n")}
+// New item from the workshop:
+//   {"${item.name.toUpperCase()}", "${item.desc.toUpperCase()}", ${item.price}, ${item.unlock}, "${item.name.toLowerCase().replace(/[^a-z0-9]+/g,"_")}",
+//    ${item.inst.glamour}, ${item.inst.happiness}, ${item.inst.energy}, ${item.inst.hunger}, ${item.inst.cleanliness},
+//    {${["EFFECT_NONE","EFFECT_MAINTAIN_MAX","EFFECT_GRADUAL_BOOST","EFFECT_MAINTAIN_LOW"][item.behav]}, ${bitNames}, ${item.dur}, ${item.boost}, ${item.interval}}},
+
+// FeedingScene.cpp -> foodPrices[3] = {${foodPrices[1]}, ${foodPrices[2]}, ${foodPrices[0]}};
+//   order is Kebab, Martini, Mi Goreng
+
+// TWO THINGS THE VALUES ABOVE CANNOT FIX ON THEIR OWN:
+//   1. checkEvolution() still hardcodes 2 / 4 / 6 minutes. The EVO_CHECKPOINT_*
+//      values will have NO EFFECT until it reads them.
+//   2. Character.cpp:899 refills her to ${S.startCoins} coins whenever the balance
+//      hits zero. Remove it or coin prices remain decorative.`;
+}
+
+/* ═══════════════════ ORCHESTRATION ═══════════════════ */
+let raf = null;
+function scheduleRender(){
+  if(raf) cancelAnimationFrame(raf);
+  raf = requestAnimationFrame(renderAll);
+}
+function renderAll(){
+  renderControls();
+  renderGigTable();
+  renderShop();
+  const income = renderIncome();
+  const solo = renderSolo();
+  const ctx = renderSim();
+  renderTolerance();
+  renderWorkshop(ctx);
+  renderEcon(income, ctx.item);
+  drawTimeline(solo);
+  renderConfig(ctx.item);
+}
+
+/* workshop inputs */
+["it_name","it_desc","it_price","it_unlock","it_buyEvery","it_hunger","it_energy",
+ "it_happy","it_glam","it_clean","it_behav","it_dur","it_boost","it_interval",
+ "it_sHunger","it_sEnergy","it_sHappy","it_sGlam","it_sClean"]
+  .forEach(id => {
+    const e = $(id);
+    e.addEventListener("input", scheduleRender);
+    e.addEventListener("change", scheduleRender);
+  });
+
+function loadPreset(which){
+  mode = which;
+  S = Object.assign({}, PRESETS[which]);
+  const cap = CARE_MAX[which];
+  ["cLove","cHappy"].forEach(id => {
+    const s = SPEC_BY_ID[id]; s.max = cap; s.min = 0; s.step = cap > 100 ? 50 : 1;
+    const r = $(id), n = $(id+"_n");
+    r.max = n.max = cap; r.min = n.min = 0; r.step = n.step = s.step;
+  });
+  ["cSick","cCrit"].forEach(id => {
+    const s = SPEC_BY_ID[id]; s.min = -cap; s.max = 0; s.step = cap > 100 ? 50 : 1;
+    const r = $(id), n = $(id+"_n");
+    r.min = n.min = -cap; r.max = n.max = 0; r.step = n.step = s.step;
+  });
+  SHOP.forEach((s,i) => shopPrices[i] = s.price);
+  FOODS.forEach((f,i) => foodPrices[i] = f.price);
+  $("presetTest").classList.toggle("on", which === "test");
+  $("presetProd").classList.toggle("on", which === "prod");
+  renderAll();
+}
+$("presetTest").addEventListener("click", () => loadPreset("test"));
+$("presetProd").addEventListener("click", () => loadPreset("prod"));
+
+$("copyCfg").addEventListener("click", async () => {
+  const b = $("copyCfg");
+  try{
+    await navigator.clipboard.writeText($("cfgOut").textContent);
+    b.textContent = "Copied";
+  }catch(err){
+    const r = document.createRange(); r.selectNodeContents($("cfgOut"));
+    const s = window.getSelection(); s.removeAllRanges(); s.addRange(r);
+    b.textContent = "Selected \u2014 press \u2318C";
+  }
+  setTimeout(() => b.textContent = "Copy Config.h block", 2200);
+});
+
+buildControls();
+loadPreset("prod");
+</script>
+</body>
+</html>
